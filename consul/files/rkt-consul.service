@@ -1,0 +1,35 @@
+[Unit]
+Description=consul running in rkt
+After=rkt-etcd.service
+
+[Service]
+EnvironmentFile=/etc/rkt-environment
+Slice=machine.slice
+ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh consul
+ExecStart=/usr/bin/rkt \
+--net=default:IP=${IP_CONSUL} \
+--hostname="${FQDN_CONSUL}" \
+--dns="${IP_UNBOUND}" \
+--dns-search="rkt" \
+--volume=data,kind=host,source=/var/rkt/consul,readOnly=false \
+run consul \
+-- \
+agent \
+-bootstrap-expect 1 \
+-dc ${DC} \
+-domain ${DC} \
+-advertise ${IP_CONSUL} \
+-bind ${IP_CONSUL} \
+-client ${IP_CONSUL} \
+-server \
+-data-dir /var/lib/consul \
+-ui-dir /var/www/consul \
+-ui true \
+-recursor ${IP_UNBOUND} \
+-node ${NAME_CONSUL}
+ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh consul
+KillMode=mixed
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

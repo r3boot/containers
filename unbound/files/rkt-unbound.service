@@ -1,0 +1,21 @@
+[Unit]
+Description=Unbound process running inside rkt
+Requires=network-online.target
+After=networking.service
+
+[Service]
+EnvironmentFile=/etc/rkt-environment
+Slice=machine.slice
+ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh unbound
+ExecStart=/usr/bin/rkt \
+--net=default:IP=${IP_UNBOUND} \
+--hostname=${FQDN_UNBOUND} \
+--dns=${IP_UNBOUND} \
+--dns-search="${DOMAIN}" \
+run unbound
+ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh unbound
+KillMode=mixed
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

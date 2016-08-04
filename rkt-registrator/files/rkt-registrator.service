@@ -1,0 +1,26 @@
+[Unit]
+Description=rkt-registrator running in rkt
+Requires=network-online.target                                                  
+After=networking.service
+
+[Service]
+EnvironmentFile=/etc/rkt-environment
+Slice=machine.slice
+ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh registrator
+ExecStart=/usr/bin/rkt \
+--net=default:IP=${IP_REGISTRATOR} \
+--hostname="${FQDN_REGISTRATOR}" \
+--dns="10.0.4.254" \
+--dns-search="${DOMAIN}" \
+--volume=cni,kind=host,source=/var/lib/cni,readOnly=true \
+--volume=rkt,kind=host,source=/var/lib/rkt,readOnly=true \
+run rkt-registrator -- \
+-consul-endpoint ${CONSUL_ENDPOINT} \
+-consul-worker ${FQDN_CONSUL} \
+-net default
+ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh registrator
+KillMode=mixed
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

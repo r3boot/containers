@@ -1,0 +1,24 @@
+[Unit]
+Description=etcd running in rkt
+Requires=network-online.target                                                  
+After=networking.service
+
+[Service]
+EnvironmentFile=/etc/rkt-environment
+Slice=machine.slice
+ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh etcd
+ExecStart=/usr/bin/rkt \
+--net=default:IP=${IP_ETCD} \
+--hostname="${FQDN_ETCD}" \
+--volume=data,kind=host,source=/var/rkt/etcd,readOnly=false \
+run etcd -- \
+--name ${FQDN_ETCD} \
+--data-dir /var/lib/etcd \
+--advertise-client-urls "http://${IP_ETCD}:2379" \
+--listen-client-urls "http://${IP_ETCD}:2379"
+ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh etcd
+KillMode=mixed
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "[*] Starting postgresql"
+su - postgres -c "pg_ctl -D /var/lib/postgresql/9.5/data start -s -w -l /var/lib/postgresql/postmaster.log"
+exec /opt/msf/msfconsole ${@}

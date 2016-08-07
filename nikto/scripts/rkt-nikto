@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ $(whoami) != 'root' ]]; then
+  echo "[E] Starting a container requires root rights"
+  exit 1
+fi
+
+rkt run --interactive nikto -- ${@}
+cleanup_rkt_containers.sh nikto

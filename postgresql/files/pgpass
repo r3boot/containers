@@ -1,0 +1,2 @@
+# hostname:port:database:username:password
+postgresql.service.local:5432:template1:dbadmin:49XnohyQ71xblQ

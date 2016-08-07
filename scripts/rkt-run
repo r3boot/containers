@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [[ $(whoami) != 'root' ]]; then
+  echo '[E] Starting a container requires root rights'
+  exit 1
+fi
+
+if [[ ${#} -lt 1 ]]; then
+  echo "Usage: $(basename ${0}) <container>"
+  exit 1
+fi
+CONTAINER="${1}"
+shift
+
+source /etc/rkt-environment
+
+rkt-cleanup ${CONTAINER}
+rkt run \
+  --dns ${IP_UNBOUND} \
+  --dns-search "${DOMAIN}" \
+  --interactive ${CONTAINER} \
+  ${@}
+rkt-cleanup ${CONTAINER}

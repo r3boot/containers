@@ -177,7 +177,7 @@ case "${OPERATION}" in
           exit 1
         fi
         ;;
-      "db")
+      "database")
         if [[ $(has_database ${ARGUMENT}) -eq 0 ]]; then
           echo "[*] database ${ARGUMENT} exists"
         else
@@ -192,7 +192,7 @@ case "${OPERATION}" in
       "user")
         add_user "${ARGUMENT}"
         ;;
-      "db")
+      "database")
         add_database "${ARGUMENT}"
         ;;
     esac
@@ -202,7 +202,7 @@ case "${OPERATION}" in
       "user")
         del_user "${ARGUMENT}"
         ;;
-      "db")
+      "database")
         del_database "${ARGUMENT}"
         ;;
     esac

@@ -6,7 +6,7 @@ After=networking.service
 [Service]
 EnvironmentFile=/etc/rkt-environment
 Slice=machine.slice
-ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh registrator
+ExecStartPre=/usr/local/bin/rkt-cleanup registrator
 ExecStart=/usr/bin/rkt \
 --net=default:IP=${IP_REGISTRATOR} \
 --hostname="${FQDN_REGISTRATOR}" \
@@ -18,7 +18,7 @@ run rkt-registrator -- \
 -consul-endpoint ${CONSUL_ENDPOINT} \
 -consul-worker ${FQDN_CONSUL} \
 -net default
-ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh registrator
+ExecStopPost=/usr/local/bin/rkt-cleanup registrator
 KillMode=mixed
 Restart=always
 

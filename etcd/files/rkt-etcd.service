@@ -6,7 +6,7 @@ After=networking.service
 [Service]
 EnvironmentFile=/etc/rkt-environment
 Slice=machine.slice
-ExecStartPre=/usr/local/bin/cleanup_rkt_containers.sh etcd
+ExecStartPre=/usr/local/bin/rkt-cleanup etcd
 ExecStart=/usr/bin/rkt \
 --net=default:IP=${IP_ETCD} \
 --hostname="${FQDN_ETCD}" \
@@ -16,7 +16,7 @@ run etcd -- \
 --data-dir /var/lib/etcd \
 --advertise-client-urls "http://${IP_ETCD}:2379" \
 --listen-client-urls "http://${IP_ETCD}:2379"
-ExecStopPost=/usr/local/bin/cleanup_rkt_containers.sh etcd
+ExecStopPost=/usr/local/bin/rkt-cleanup etcd
 KillMode=mixed
 Restart=always
 

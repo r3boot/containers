@@ -6,4 +6,4 @@ if [[ $(whoami) != 'root' ]]; then
 fi
 
 rkt run --interactive nikto -- ${@}
-cleanup_rkt_containers.sh nikto
+rkt-cleanup nikto

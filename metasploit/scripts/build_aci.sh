@@ -21,7 +21,7 @@ acbuild --debug copy files/resolv.conf /etc/resolv.conf
 acbuild --debug copy files/repositories /etc/apk/repositories
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
-acbuild --debug run -- apk add openssl postgresql nmap ruby gcc git make ncurses ruby-dev musl-dev zlib-dev libffi-dev sqlite-dev postgresql-dev libpcap-dev
+acbuild --debug run -- apk add openssl postgresql-client nmap ruby gcc git make ncurses bash sqlite-libs ruby-dev musl-dev zlib-dev libffi-dev sqlite-dev postgresql-dev libpcap-dev
 acbuild --debug run -- gem install rake bundler io-console --no-ri --no-rdoc
 acbuild --debug copy build/metasploit-framework-${VERSION} /opt/msf
 acbuild --debug copy files/Gemfile.local /opt/msf/Gemfile.local
@@ -29,13 +29,10 @@ acbuild --debug run -- bundle config --global jobs ${BUNDLEJOBS}
 acbuild --debug run -- bundle install --gemfile /opt/msf/Gemfile.local
 acbuild --debug run -- ln -s /opt/msf/msf* /usr/bin/
 acbuild --debug run -- ln -s /opt/msf/tools/*/* /usr/bin/
-acbuild --debug copy files/metasploit.sql /var/lib/postgresql/metasploit.sql
+acbuild --debug copy build/dbadmin /usr/bin/dbadmin
 acbuild --debug copy files/database.yml /opt/msf/config/database.yml
-acbuild --debug run -- sh -c "mkdir -p /run/openrc && touch /run/openrc/softlevel && /etc/init.d/postgresql setup"
-acbuild --debug run -- su - postgres -c "pg_ctl -D /var/lib/postgresql/9.5/data start -s -w -l /var/lib/postgresql/postmaster.log ; psql -f /var/lib/postgresql/metasploit.sql ; pg_ctl -D /var/lib/postgresql/9.5/data stop"
 acbuild --debug copy files/run_msfconsole /usr/bin/run_msfconsole
 acbuild --debug run -- apk del gcc ruby-dev musl-dev zlib-dev libffi-dev sqlite-dev postgresql-dev libpcap-dev
-acbuild --debug run -- rm -f /var/lib/postgresql/metasploit.sql
 acbuild --debug run -- rm -f /var/cache/apk/*.gz
 acbuild --debug mount add config /root/.msf4
 acbuild --debug mount add data /tmp/data

@@ -1,5 +1,9 @@
 #!/bin/sh
 
-echo "[*] Starting postgresql"
-su - postgres -c "pg_ctl -D /var/lib/postgresql/9.5/data start -s -w -l /var/lib/postgresql/postmaster.log"
+
+# Configure database
+DBADMIN='/usr/bin/dbadmin'
+${DBADMIN} add user msf:pv5WBrx7riN76i
+${DBADMIN} add database msfdb:msf
+
 exec /opt/msf/msfconsole ${@}

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [[ $(whoami) != 'root' ]]; then
+  echo 'Running containers requires root rights'
+  exit 1
+fi
+
+
+WORKSPACE='./build'
+DESTDIR='./installed'
+
+if [[ -z "${WORKSPACE}" ]]; then
+  echo "${WORKSPACE} does not exist"
+  exit 1
+fi
+
+if [[ -z "${DESTDIR}" ]]; then
+  echo "${DESTDIR} does not exist"
+  exit 1
+fi
+
+WORKSPACE="$(readlink -f ${WORKSPACE})"
+DESTDIR="$(readlink -f ${DESTDIR})"
+
+rkt run \
+  --interactive \
+  --volume=workspace,kind=host,source=${WORKSPACE},readOnly=false \
+  --volume=install,kind=host,source=${DESTDIR},readOnly=false \
+  alpine-builder ${@}
+rkt-cleanup alpine-builder

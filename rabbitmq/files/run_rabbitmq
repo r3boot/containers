@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Symlink Erlang into place if needed
+if [[ ! -L /usr/bin/erl ]]; then
+  ln -s /opt/erlang/bin/* /usr/bin/
+fi
+
+# Symlink rabbitmq into place if needed
+if [[ ! -L /usr/sbin/rabbitmq-server ]]; then
+  ln -s /opt/rabbitmq/sbin/* /usr/sbin/
+fi
+
+# Start rabbitmq
+exec /usr/sbin/rabbitmq-server

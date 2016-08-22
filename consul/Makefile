@@ -39,7 +39,7 @@ extract:
 
 ${ACI}:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
-	./files/build_aci.sh ${VERSION}
+	${SCRIPTS}/build_aci.sh ${VERSION}
 
 install:
 	rkt fetch --insecure-options=image \

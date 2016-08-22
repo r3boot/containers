@@ -22,8 +22,13 @@ fi
 WORKSPACE="$(readlink -f ${WORKSPACE})"
 DESTDIR="$(readlink -f ${DESTDIR})"
 
+source /etc/rkt-environment
+
 rkt run \
   --interactive \
+  --net=default \
+  --dns=${IP_UNBOUND} \
+  --dns-search=${DOMAIN} \
   --volume=workspace,kind=host,source=${WORKSPACE},readOnly=false \
   --volume=install,kind=host,source=${DESTDIR},readOnly=false \
   alpine-builder ${@}

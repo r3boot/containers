@@ -16,6 +16,7 @@ fi
 # Start up rabbitmq in the background so we can add users
 /opt/rabbitmq/sbin/rabbitmq-server -detached
 sleep 3
+${RABBITMQCTL} node_health_check || exit 1
 
 cat ${USERLIST} | while read LINE; do
   USER="$(echo ${LINE} | cut -d\: -f1)"
@@ -35,5 +36,6 @@ done
 
 # Shutdown the rabbitmq server running in the background so we can
 # start up a rabbitmq server in the foreground
-/opt/rabbitmq/sbin/rabbitmqctl stop
 pkill epmd
+pkill beam.smp
+sleep 1

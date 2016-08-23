@@ -1,8 +1,33 @@
 #!/bin/sh
 
 # Add erlang to the path
-PATH="${PATH}:/opt/erlang/bin"
+PATH="${PATH}:/opt/erlang/bin:/opt/rabbitmq/sbin"
 export PATH
+
+# CSV file containing users to configure
+USERLIST='/root/userlist.txt'
+
+# Script used to configure the users
+SETUP_USERS='/root/setup_users'
+
+# Data directory
+DATADIR='/var/lib/rabbitmq'
+DATADIR_S='/opt/rabbitmq/var/lib'
+
+if [[ ! -f "${DATADIR_S}" ]]; then
+  mkdir -p $(dirname "${DATADIR_S}")
+  ln -s "${DATADIR}" "${DATADIR_S}"
+
+  # One-time configuration of users
+  if [[ -f "${USERLIST}" ]]; then
+    if [[ -f "${SETUP_USERS}" ]]; then
+      ${SETUP_USERS}
+      rm -f ${SETUP_USERS} ${USERLIST}
+    else
+      echo "[W] ${SETUP_USERS} not found"
+    fi
+  fi
+fi
 
 # Start rabbitmq in the foreground
 exec /opt/rabbitmq/sbin/rabbitmq-server

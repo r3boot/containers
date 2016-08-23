@@ -57,7 +57,7 @@ build_erlang:
 		${BUILD_DIR}/build.sh
 	sed -i -e "s,%VERSION%,${ERLANG_VERSION},g" ${BUILD_DIR}/build.sh
 	rkt-builder
-	cd ${INSTALL_DIR} && tar cvJf ../build/erlang-${ERLANG_VERSION}-linux-amd64.tar.xz *
+	cd ${INSTALL_DIR} && tar cvJf ../build/erlang-${ERLANG_VERSION}-musl-amd64.tar.xz *
 	[[ -d ${INSTALL_DIR} ]] && rm -rf ${INSTALL_DIR} || true
 
 ${ACI}:
@@ -66,6 +66,9 @@ ${ACI}:
 
 install:
 	rkt fetch --insecure-options=image ${BUILD_DIR}/${ACI}
+	install -d -o root -g root -m 0750 /var/rkt/rabbitmq
+	install -o root -g root -m 0644 ${FILES}/rkt-rabbitmq.service \
+		/etc/systemd/system/rkt-rabbitmq.service
 
 clean:
 	[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR} || true

@@ -37,8 +37,8 @@ acbuild --debug run -- mkdir -p /opt
 acbuild --debug run -- tar xpJf /root/${ERL_PKG} -C /opt/
 acbuild --debug run -- tar xpJf /root/${RABBITMQ_PKG} -C /opt/
 acbuild --debug run -- ln -s /opt/rabbitmq_server-${VERSION} /opt/rabbitmq
-acbuild --debug run -- /root/setup_users
-acbuild --debug run -- rm -f /root/${ERL_PKG} /root/${RABBITMQ_PKG} /root/setup_users /root/userlist.txt
+acbuild --debug run -- rm -f /root/${ERL_PKG} /root/${RABBITMQ_PKG}
+acbuild --debug mount add data /var/lib/rabbitmq
 acbuild --debug set-exec /usr/sbin/run_rabbitmq
 acbuild --debug write ./build/rabbitmq-${VERSION}-amd64.aci
 acbuild end

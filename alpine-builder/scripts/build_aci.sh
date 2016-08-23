@@ -21,7 +21,7 @@ acbuild --debug copy files/run_build.sh /usr/bin/run_build.sh
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
 acbuild --debug run -- apk add autoconf automake gcc g++ clang perl bison m4 make flex
-acbuild --debug run -- apk add ncurses-dev openssl-dev
+acbuild --debug run -- apk add linux-headers ncurses-dev openssl-dev readline-dev
 acbuild --debug mount add workspace /workspace
 acbuild --debug mount add install /opt
 acbuild --debug set-exec /usr/bin/run_build.sh

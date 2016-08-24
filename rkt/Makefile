@@ -133,6 +133,8 @@ install:
 	install -d -o root -g root -m 0755 /etc/rkt
 	install -d -o root -g root -m 0755 /etc/rkt/net.d
 	install -o root -g root -m 0644 files/default.conf /etc/rkt/net.d/default.conf
+	install -d -o root -g root -m 0755 /var/rkt
+	install -d -o root -g root -m 0755 /var/log/rkt
 
 clean:
 	[ -d ${BUILD_DIR} ] && rm -rf ${BUILD_DIR} || true

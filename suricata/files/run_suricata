@@ -1,0 +1,14 @@
+#!/bin/sh
+
+INTERFACE='%INTERFACE%'
+
+SURICATA_ETC='/etc/suricata'
+RULES_DIR="${SURICATA_ETC}/rules"
+TARBALL='emerging.rules.tar.gz'
+RULES_UPSTREAM="https://rules.emergingthreats.net/open/suricata-3.0/${TARBALL}"
+
+echo '[*] Updating suricata ruleset, please wait'
+wget -qO - ${RULES_UPSTREAM} | tar xzf - -C "${SURICATA_ETC}"
+echo "[*] $(ls ${RULES_DIR}|wc -l) rules installed"
+
+exec /opt/suricata/bin/suricata -c /etc/suricata/suricata.yaml -i ${INTERFACE}

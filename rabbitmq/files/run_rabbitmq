@@ -14,6 +14,10 @@ SETUP_USERS='/root/setup_users'
 DATADIR='/var/lib/rabbitmq'
 DATADIR_S='/opt/rabbitmq/var/lib'
 
+if [[ ! L /opt/rabbitmq ]]; then
+  ln -s /opt/rabbitmq_server-3.6.5 /opt/rabbitmq
+fi
+
 if [[ ! -d "${DATADIR}/rabbitmq" ]]; then
   # One-time configuration of users
   if [[ -f "${USERLIST}" ]]; then

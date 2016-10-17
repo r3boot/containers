@@ -1,0 +1,27 @@
+---
+# This file contains the configuration for logshipper
+#
+# inputs[].type: Specifies what kind of parser is used while reading the file
+# * syslog: syslog with rfc3339 timestamps
+# * clf:    common log format
+# * json:   JSON format
+#
+# inputs[].ts_format: Specify the time format (see golang.org/pkg/time),
+#                     defaults are available per input type
+# 
+
+inputs:
+  - name: suricata
+    path: /logs/suricata/eve.json
+    type: suricata
+
+elk:
+  type: syslog-input
+
+amqp:
+  name: amqp
+  host: rabbitmq.service.local
+  port: 5672
+  username: logshipper
+  password: logshipper
+  exchange: amqp-input

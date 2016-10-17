@@ -15,6 +15,7 @@ cd ${SRCDIR} \
 && ./configure \
   --prefix=/opt/bird-${VERSION} \
   --sysconfdir=/etc/bird \
+  --localstatedir=/var \
   --enable-ipv6 \
 && make -j 2 \
 && make install

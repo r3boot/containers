@@ -15,5 +15,6 @@ cd ${SRCDIR} \
 && ./configure \
   --prefix=/opt/bird-${VERSION} \
   --sysconfdir=/etc/bird \
+  --localstatedir=/var \
 && make -j 2 \
 && make install

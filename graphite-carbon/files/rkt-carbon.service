@@ -6,14 +6,14 @@ After=networking.service
 [Service]
 EnvironmentFile=/etc/rkt-environment
 Slice=machine.slice
-ExecStartPre=/usr/local/bin/rkt-cleanup graphite-carbon
+ExecStartPre=/usr/local/bin/rkt-cleanup carbon
 ExecStart=/usr/bin/rkt \
 --net=default \
 --dns=${IP_UNBOUND} \
 --dns-search="${DOMAIN}" \
---volume=data,kind=host,source=/var/rkt/graphite-carbon,readOnly=false \
-run graphite-carbon
-ExecStopPost=/usr/local/bin/rkt-cleanup graphite-carbon
+--volume=data,kind=host,source=/var/rkt/graphite,readOnly=false \
+run carbon
+ExecStopPost=/usr/local/bin/rkt-cleanup carbon
 KillMode=mixed
 Restart=always
 

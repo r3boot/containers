@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -x
+
+GRAPHITE_HOME='/opt/graphite'
+GRAPHITE_STORAGE="${GRAPHITE_HOME}/storage"
+WEB_LOGS="${GRAPHITE_STORAGE}/log"
+
+install -d -o root -g carbon -m 0770 ${GRAPHITE_STORAGE}
+
+exec /opt/graphite/bin/carbon-cache.py start --nodaemon

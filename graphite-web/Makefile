@@ -7,16 +7,11 @@ TIMEZONE = 'Europe/Amsterdam'
 MEMCACHED = memcached.service.local:11211
 KEY = $(shell openssl rand -hex 96)
 
-CARBON_ACI = ${TARGET}-carbon-${VERSION}-amd64.aci
-WEB_ACI = ${TARGET}-web-${VERSION}-amd64.aci
+ACI = ${TARGET}-${VERSION}-amd64.aci
 
-all: ${CARBON_ACI} ${WEB_ACI}
+all: ${ACI}
 
-${CARBON_ACI}:
-	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
-	${SCRIPTS}/build_carbon_aci.sh ${VERSION}
-
-${WEB_ACI}:
+${ACI}:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
 	install -o root -g root -m 0644 files/local_settings.py \
 		build/local_settings.py
@@ -25,16 +20,14 @@ ${WEB_ACI}:
 		-e "s,^#TIME_ZONE.*,TIME_ZONE=${TIMEZONE},g" \
 		-e "s,127.0.0.1:11211,${MEMCACHED},g" \
 		build/local_settings.py
-	${SCRIPTS}/build_web_aci.sh ${VERSION}
+	${SCRIPTS}/build_aci.sh ${VERSION}
 
 install:
-	rkt fetch --insecure-options=image ${BUILD_DIR}/${CARBON_ACI}
-	rkt fetch --insecure-options=image ${BUILD_DIR}/${WEB_ACI}
+	rkt fetch --insecure-options=image ${BUILD_DIR}/${ACI}
 	install -d -o 100 -m 0750 /var/rkt/graphite-carbon
-	install -o root -g root -m 0644 files/rkt-${TARGET}-carbon.service \
-		/etc/systemd/system/rkt-${TARGET}-carbon.service
+	install -o root -g root -m 0644 files/rkt-${TARGET}.service \
+		/etc/systemd/system/rkt-${TARGET}.service
 
 clean:
 	[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR} || true
-	rkt image rm ${TARGET}-carbon || true
-	rkt image rm ${TARGET}-web || true
+	rkt image rm ${TARGET} || true

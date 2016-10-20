@@ -11,7 +11,7 @@ ExecStart=/usr/bin/rkt \
 --dns="${IP_UNBOUND}" \
 --dns-search="rkt" \
 --volume=data,kind=host,source=/var/rkt/influxdb,readOnly=false \
-run influxdb \
+run influxdb
 ExecStopPost=/usr/local/bin/rkt-cleanup influxdb
 KillMode=mixed
 Restart=always

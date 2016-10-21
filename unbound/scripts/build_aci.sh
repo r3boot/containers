@@ -19,7 +19,7 @@ acbuild --debug copy files/resolv.conf /etc/resolv.conf
 acbuild --debug copy files/repositories /etc/apk/repositories
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
-acbuild --debug run -- apk add unbound
+acbuild --debug run -- apk add unbound openssl
 acbuild --debug copy files/unbound.conf /etc/unbound/unbound.conf
 acbuild --debug set-exec /usr/sbin/unbound
 acbuild --debug write ./build/unbound-${VERSION}-amd64.aci

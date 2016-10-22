@@ -19,5 +19,6 @@ rkt run \
   --dns ${IP_UNBOUND} \
   --dns-search "${DOMAIN}" \
   --interactive ${CONTAINER} \
+  --set-env-file /etc/rkt-environment \
   ${@}
 rkt-cleanup ${CONTAINER}

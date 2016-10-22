@@ -12,7 +12,6 @@ unbound-control-setup
 # Generate configuration
 genconfig
 
-
 # Gather metrics
 (sleep 3 ; gather_metrics) &
 

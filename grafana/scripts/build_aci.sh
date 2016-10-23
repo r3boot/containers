@@ -20,6 +20,7 @@ acbuild --debug copy files/resolv.conf /etc/resolv.conf
 acbuild --debug copy files/repositories /etc/apk/repositories
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
+acbuild --debug run -- apk add ca-certificates
 acbuild --debug run -- rm -f /var/cache/apk/*.gz
 acbuild --debug copy build/${GRAFANA_PKG} /root/${GRAFANA_PKG}
 acbuild --debug run -- mkdir -p /opt

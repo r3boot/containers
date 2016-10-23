@@ -17,5 +17,6 @@ apk add nodejs \
 && npm run build \
 && mkdir -p /opt/grafana-${VERSION}/bin \
 && cp bin/grafana-server /opt/grafana-${VERSION}/bin/grafana-server \
+&& cp bin/grafana-cli /opt/grafana-${VERSION}/bin/grafana-cli \
 && cp -Rp conf node_modules /opt/grafana-${VERSION}/ \
 && cp -Rp public_gen /opt/grafana-${VERSION}/public

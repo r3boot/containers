@@ -544,7 +544,7 @@
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "bytes",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -854,7 +854,7 @@
     }
   ],
   "time": {
-    "from": "now-15m",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -888,9 +888,9 @@
   "annotations": {
     "list": []
   },
-  "refresh": false,
+  "refresh": "30s",
   "schemaVersion": 12,
-  "version": 1,
+  "version": 2,
   "links": [],
   "gnetId": null
 }

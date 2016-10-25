@@ -12,6 +12,7 @@ ExecStart=/usr/bin/rkt \
 --hostname=${FQDN_UNBOUND} \
 --dns=${IP_UNBOUND} \
 --dns-search="${DOMAIN}" \
+--set-env-file=/etc/rkt-environment \
 run unbound
 ExecStopPost=/usr/local/bin/rkt-cleanup unbound
 KillMode=mixed

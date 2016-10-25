@@ -1,0 +1,17 @@
+rkt._NS=unbound.rkt.
+rkt._SOA=rkt. dnsmaster.rkt. 1 3600 1200 604800 10800
+rkt._A=10.0.4.1
+localhost.rkt._A=127.0.0.1
+localhost.rkt._AAAA=::1
+alita.rkt._A=10.0.4.1
+registrator.rkt._A=10.0.4.251
+consul.rkt._A=10.0.4.252
+etcd.rkt._A=10.0.4.253
+unbound.rkt._A=10.0.4.254
+4.0.10.in-addr.arpa._NS=unbound.rkt.
+4.0.10.in-addr.arpa._SOA=rkt. dnsmaster.rkt. 1 3600 1200 604 800 10800
+1.4.0.10.in-addr.arpa._PTR=alita.rkt.
+251.4.0.10.in-addr.arpa._PTR=registrator.rkt.
+252.4.0.10.in-addr.arpa._PTR=consul.rkt.
+253.4.0.10.in-addr.arpa._PTR=etcd.rkt.
+254.4.0.10.in-addr.arpa._PTR=unbound.rkt.

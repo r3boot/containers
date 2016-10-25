@@ -1,0 +1,17 @@
+so-rcvbuf=0
+so-sndbuf=0
+so-reuseport=no
+edns-buffer-size=4096
+msg-cache-size=4m
+rrset-cache-size=4m
+cache-min-ttl=0
+cache-max-ttl=86400
+do-ip4=yes
+do-ip6=yes
+do-udp=yes
+do-tcp=yes
+prefetch=yes
+prefetch-key=yes
+rrset-roundrobin=yes
+minimal-responses=no
+module-config=iterator

@@ -4,43 +4,43 @@ server:
 	statistics-cumulative: no
 	extended-statistics: yes
 
-	num-threads: 1
+	num-threads: %NUM_THREADS%
 
 	interface: 0.0.0.0
 	# interface-automatic: no
-	# port: 53
+	port: %PORT%
 	# outgoing-interface: 192.0.2.153
-	# outgoing-range: 4096
-	# outgoing-port-permit: 32768
-	# outgoing-port-avoid: "3200-3208"
-	# outgoing-num-tcp: 10
-	# incoming-num-tcp: 10
-	so-rcvbuf: 0
-	so-sndbuf: 0
-	so-reuseport: no
+	outgoing-range: %OUTGOING_RANGE%
+	outgoing-port-permit: %OUTGOING_PORT_PERMIT%
+	outgoing-port-avoid: %OUTGOING_PORT_AVOID%
+	outgoing-num-tcp: %OUTGOING_NUM_TCP%
+	incoming-num-tcp: %INCOMING_NUM_TCP%
+	so-rcvbuf: %SO_RCVBUF%
+	so-sndbuf: %SO_SNDBUF%
+	so-reuseport: %SO_REUSEPORT%
 	# ip-transparent: no
-	edns-buffer-size: 4096
-	# max-udp-size: 4096
-	# msg-buffer-size: 65552
-	msg-cache-size: 4m
-	# msg-cache-slabs: 4
-	# num-queries-per-thread: 1024
-	# jostle-timeout: 200
-	# delay-close: 0
-	rrset-cache-size: 4m
-	# rrset-cache-slabs: 4
-	cache-min-ttl: 0
-	cache-max-ttl: 86400
-	# cache-max-negative-ttl: 3600
-	# infra-host-ttl: 900
-	# infra-cache-min-rtt: 50
-	# infra-cache-slabs: 4
-	# infra-cache-numhosts: 10000
-	do-ip4: yes
-	do-ip6: yes
-	do-udp: yes
-	do-tcp: yes
-	# tcp-upstream: no
+	edns-buffer-size: %EDNS_BUFFER_SIZE%
+	max-udp-size: %MAX_UDP_SIZE%
+	msg-buffer-size: %MSG_BUFFER_SIZE%
+	msg-cache-size: %MSG_CACHE_SIZE%
+	msg-cache-slabs: %MSG_CACHE_SLABS%
+	num-queries-per-thread: %NUM_QUERIES_PER_THREAD%
+	jostle-timeout: %JOSTLE_TIMEOUT%
+	delay-close: %DELAY_CLOSE%
+	rrset-cache-size: %RRSET_CACHE_SIZE%
+	rrset-cache-slabs: %RRSET_CACHE_SLABS%
+	cache-min-ttl: %CACHE_MIN_TTL%
+	cache-max-ttl: %CACHE_MAX_TTL%
+	cache-max-negative-ttl: %CACHE_MAX_NEGATIVE_TTL%
+	infra-host-ttl: %INFRA_HOST_TTL%
+	infra-cache-min-rtt: %INFRA_CACHE_MIN_TTL%
+	infra-cache-slabs: %INFRA_CACHE_SLABS%
+	infra-cache-numhosts: %INFRA_CACHE_NUMHOSTS%
+  do-ip4: %DO_IP4%
+	do-ip6: %DO_IP6%
+	do-udp: %DO_UDP%
+	do-tcp: %DO_TCP%
+	tcp-upstream: %TCP_UPSTREAM%
 	do-daemonize: no
 	access-control: 0.0.0.0/0 allow
 	# chroot: "/etc/unbound"
@@ -52,18 +52,18 @@ server:
 	# log-queries: no
 	# pidfile: "/etc/unbound/unbound.pid"
 	root-hints: "/etc/unbound/root.hints"
-	hide-identity: no
-	hide-version: no
-	# identity: ""
-	# version: ""
-	# target-fetch-policy: "3 2 1 0 0"
-	# harden-short-bufsize: no
-	# harden-large-queries: no
-	# harden-glue: yes
-	# harden-dnssec-stripped: yes
-	# harden-below-nxdomain: no
-	# harden-referral-path: no
-	# harden-algo-downgrade: yes
+	hide-identity: %HIDE_IDENTITY%
+	hide-version: %HIDE_IDENTITY%
+	identity: %IDENTITY%
+	version: %VERSION%
+	target-fetch-policy: %TARGET_FETCH_POLICY%
+	harden-short-bufsize: %HARDEN_SHORT_BUFSIZE%
+	harden-large-queries: %HARDEN_LARGE_QUERIES%
+	harden-glue: %HARDEN_GLUE%
+	harden-dnssec-stripped: %HARDEN_DNSSEC_STRIPPED%
+	harden-below-nxdomain: %HARDEN_BELOW_NXDOMAIN%
+	harden-referral-path: %HARDEN_REFERRAL_PATH%
+	harden-algo-downgrade: %HARDEN_ALGO_DOWNGRADE%
 	# use-caps-for-id: no
 	# caps-whitelist: "licdn.com"
 	# private-address: 10.0.0.0/8
@@ -73,16 +73,16 @@ server:
 	# private-address: fd00::/8
 	# private-address: fe80::/10
 	# private-domain: "example.com"
-	# unwanted-reply-threshold: 0
+	unwanted-reply-threshold: %UNWANTED_REPLY_THRESHOLD%
 	# do-not-query-address: 127.0.0.1/8
 	# do-not-query-address: ::1
 	# do-not-query-localhost: yes
-	prefetch: yes
-	prefetch-key: yes
-	rrset-roundrobin: yes
-	minimal-responses: no
+	prefetch: %PREFETCH%
+	prefetch-key: %PREFETCH_KEY%
+	rrset-roundrobin: %RRSET_ROUNDROBIN%
+	minimal-responses: %MINIMAL_RESPONSE%
 	# module-config: "validator iterator"
-	module-config: "iterator"
+	module-config: %MODULE_CONFIG%
 	auto-trust-anchor-file: "/etc/unbound/root.key"
 	# trust-anchor-file: ""
 	# trust-anchor: "nlnetlabs.nl. DNSKEY 257 3 5 AQPzzTWMz8qSWIQlfRnPckx2BiVmkVN6LPupO3mbz7FhLSnm26n6iG9N Lby97Ji453aWZY3M5/xJBSOS2vWtco2t8C0+xeO1bc/d6ZTy32DHchpW 6rDH1vp86Ll+ha0tmwyy9QP7y2bVw5zSbFCrefk8qCUBgfHm9bHzMG1U BYtEIQ=="
@@ -100,9 +100,9 @@ server:
 	# add-holddown: 2592000 # 30 days
 	# del-holddown: 2592000 # 30 days
 	# keep-missing: 31622400 # 366 days
-	# key-cache-size: 4m
-	# key-cache-slabs: 4
-	# neg-cache-size: 1m
+	key-cache-size: %KEY_CACHE_SIZE%
+	key-cache-slabs: %KEY_CACHE_SLABS%
+	neg-cache-size: %NEG_CACHE_SIZE%
     #
 	# local-zone: "localhost." nodefault
 	# local-zone: "127.in-addr.arpa." nodefault
@@ -167,13 +167,13 @@ server:
 	# local-data-ptr: "192.0.2.3 www.example.com"
 	# ssl-service-key: "path/to/privatekeyfile.key"
 	# ssl-service-pem: "path/to/publiccertfile.pem"
-	# ssl-port: 443
-	# ssl-upstream: no
+	ssl-port: %SSL_PORT%
+	ssl-upstream: %SSL_UPSTREAM%
 	# dns64-prefix: 64:ff9b::0/96
-	# ratelimit: 0
-	# ratelimit-size: 4m
-	# ratelimit-slabs: 4
-	# ratelimit-factor: 10
+	ratelimit: %RATELIMIT%
+	ratelimit-size: %RATELIMIT_SIZE%
+	ratelimit-slabs: %RATELIMIT_SLABS%
+	ratelimit-factor: %RATELIMIT_FACTOR%
 	# ratelimit-for-domain: example.com 1000
 	# ratelimit-below-domain: example 1000
 

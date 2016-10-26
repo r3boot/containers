@@ -1,0 +1,49 @@
+#!/bin/sh
+
+ETCDCTL="$(dirname $(readlink -f ${0}))/etcdctl"
+
+if [[ ! -x "${ETCDCTL}" ]]; then
+  echo "[E] etcdctl not found"
+  exit 1
+fi
+
+if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
+  echo "[E] ETCDCTL_ENDPOINT not set"
+  exit 1
+fi
+
+if [[ ${#} -ne 2 ]]; then
+  echo "[E] Usage: $(basename ${0}) <basedir> <settings file>"
+  echo "    Set CLEAR_BASEDIR to clear directory"
+  exit 1
+fi
+BASEDIR="${1}"
+SETTINGS_FILE="${2}"
+
+if [[ ! -f "${SETTINGS_FILE}" ]]; then
+  echo "[E] ${SETTINGS_FILE} not found"
+  exit 1
+fi
+
+if [[ ! -z "${CLEAR_BASEDIR}" ]]; then
+  ${ETCDCTL} rm -r ${BASEDIR}
+fi
+
+${ETCDCTL} ls ${BASEDIR} >/dev/null 2>&1
+if [[ ${?} -ne 0 ]]; then
+  ${ETCDCTL} mkdir ${BASEDIR}
+fi
+
+cat ${SETTINGS_FILE} | while read SETTING; do
+  KEY="$(echo ${SETTING} | cut -d= -f1)"
+  VALUE="$(echo ${SETTING} | cut -d= -f2-)"
+
+  ${ETCDCTL} get ${BASEDIR}/${KEY} >/dev/null 2>&1
+  if [[ ${?} -eq 0 ]]; then
+    echo "[W] ${BASEDIR}/${KEY} already defined"
+    continue
+  fi
+
+  echo -n "${BASEDIR}/${KEY} -> "
+  ${ETCDCTL} set ${BASEDIR}/${KEY} "${VALUE}"
+done

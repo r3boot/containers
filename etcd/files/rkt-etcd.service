@@ -11,6 +11,7 @@ ExecStart=/usr/bin/rkt \
 --net=default:IP=${IP_ETCD} \
 --hostname="${FQDN_ETCD}" \
 --volume=data,kind=host,source=/var/rkt/etcd,readOnly=false \
+--set-env-file /etc/rkt-environment \
 run etcd -- \
 --name ${FQDN_ETCD} \
 --data-dir /var/lib/etcd \

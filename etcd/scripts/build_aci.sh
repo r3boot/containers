@@ -21,8 +21,10 @@ acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
 acbuild --debug copy build/etcd-v${VERSION}-linux-amd64/etcdctl /usr/bin/etcdctl
 acbuild --debug copy build/etcd-v${VERSION}-linux-amd64/etcd /usr/sbin/etcd
+acbuild --debug copy build/etcd-metrics-to-influxdb /usr/bin/etcd-metrics-to-influxdb
+acbuild --debug copy files/run_etcd /usr/sbin/run_etcd
 acbuild --debug mount add data /var/lib/etcd
 acbuild --debug port add client tcp 2379
-acbuild --debug set-exec /usr/sbin/etcd
+acbuild --debug set-exec /usr/sbin/run_etcd
 acbuild --debug write --overwrite ./build/etcd-${VERSION}-amd64.aci
 acbuild end

@@ -39,6 +39,8 @@ install:
 		/etc/systemd/system/rkt-${TARGET}.service
 	install -d -o root -g root -m 0755 /var/rkt
 	install -d -o root -g root -m 0750 /var/rkt/etcd
+	install -o root -g root -m 0755 ${BUILD_DIR}/etcd-v${VERSION}-linux-amd64/etcdctl \
+		../scripts/etcdctl
 
 clean:
 	[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR} || true

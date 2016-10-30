@@ -65,7 +65,6 @@ func metricsReader(read_chan chan []string) {
 			time.Sleep(time.Duration(interval) * time.Second)
 			continue
 		}
-		defer resp.Body.Close()
 		Log.Debug("Got metric from " + etcd_endpoint)
 
 		reader = bufio.NewScanner(resp.Body)
@@ -83,6 +82,7 @@ func metricsReader(read_chan chan []string) {
 			lines = append(lines, line)
 		}
 
+		resp.Body.Close()
 		read_chan <- lines
 
 		t_end = time.Now().Unix()
@@ -171,9 +171,8 @@ func metricsWriter(write_chan chan string) {
 
 		if resp, err = client.Post(metrics_sink, "application/octet-stream", strings.NewReader(metrics)); err != nil {
 			Log.Warning("Http post failed: " + err.Error())
-			return
+			continue
 		}
-		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusNoContent {
 			Log.Warning("Failed to post metrics to " + metrics_sink + ": " + resp.Status)
@@ -181,7 +180,9 @@ func metricsWriter(write_chan chan string) {
 				Log.Warning("Failed to parse body: " + err.Error())
 			}
 			Log.Warning(string(body_b))
+			continue
 		}
+		resp.Body.Close()
 		Log.Debug("Wrote metric to " + metrics_sink)
 	}
 }

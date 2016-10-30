@@ -11,5 +11,5 @@ build_agents:
 	rkt-builder
 
 clean:
-	[[ -d "${BUILD_DIR}" ]] && rm -rf ${BUILD_DIR}
-	[[ -d "${INSTALLED_DIR}" ]] && rm -rf ${INSTALLED_DIR}
+	[[ -d "${BUILD_DIR}" ]] && rm -rf ${BUILD_DIR} || true
+	[[ -d "${INSTALLED_DIR}" ]] && rm -rf ${INSTALLED_DIR} || true

@@ -20,6 +20,7 @@ acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
 acbuild --debug run -- apk add ca-certificates
 acbuild --debug run -- rm -f /var/cache/apk/*.gz
+acbuild --debug copy files/telemetry.json /etc/consul/telemetry.json
 acbuild --debug copy ./build/consul /usr/sbin/consul
 acbuild --debug copy ./build/ui /var/www/consul
 acbuild --debug mount add data /var/lib/consul

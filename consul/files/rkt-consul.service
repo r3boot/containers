@@ -15,13 +15,13 @@ ExecStart=/usr/bin/rkt \
 run consul \
 -- \
 agent \
--bootstrap-expect 1 \
 -dc ${DC} \
 -domain ${DC} \
 -advertise ${IP_CONSUL} \
 -bind ${IP_CONSUL} \
 -client ${IP_CONSUL} \
 -server \
+-config-file /etc/consul/telemetry.json \
 -data-dir /var/lib/consul \
 -ui-dir /var/www/consul \
 -ui true \

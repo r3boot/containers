@@ -2,7 +2,7 @@ TARGET = consul
 BUILD_DIR = ./build
 SCRIPTS = ./scripts
 
-VERSION = 0.6.4
+VERSION = 0.7.0
 ZIPFILE = ${TARGET}_${VERSION}_linux_amd64.zip
 UI_ZIPFILE = ${TARGET}_${VERSION}_web_ui.zip
 HASHES = ${TARGET}_${VERSION}_SHA256SUMS

@@ -1,0 +1,42 @@
+#!/bin/sh
+
+ETCDCTL='/usr/bin/etcdctl'
+ETCDCTL_ENDPOINT='http://etcd.service.local:2379'
+BASE='/statsite'
+
+INFLUXDB_CONF='/etc/statsite/influxdb.ini'
+NEWCONF="${INFLUXDB_CONF}.new"
+
+# Do we use dynamic configuration at all?
+if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
+  echo "[W] ETCDCTL_ENDPOINT not defined"
+  exit 0
+fi
+
+# Check if statsite directory is configured
+${ETCDCTL} ls ${BASE} >/dev/null
+if [[ ${?} -ne 0 ]]; then
+  echo "[W] No statsite settings found under etcd"
+  exit 0
+fi
+
+echo -n "[+] Generating influxdb.ini: "
+
+rm -f ${NEWCONF}
+
+cat > ${NEWCONF} <<EOF
+[influxdb]
+host = $(${ETCDCTL} get ${BASE}/influxdb/host)
+port = $(${ETCDCTL} get ${BASE}/influxdb/port)
+database = $(${ETCDCTL} get ${BASE}/influxdb/database)
+username = $(${ETCDCTL} get ${BASE}/influxdb/username)
+password = $(${ETCDCTL} get ${BASE}/influxdb/password)
+
+version = 0.9
+prefix = statsite
+timeout = 10
+EOF
+
+mv ${NEWCONF} ${INFLUXDB_CONF}
+
+echo "OK"

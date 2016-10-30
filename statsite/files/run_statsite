@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Generate configuration
+genconfig
+
+# Fix bash symlink
+rm -f /bin/sh
+ln -s /bin/bash /bin/sh
+
+exec /opt/statsite/bin/statsite -f /etc/statsite/statsite.conf

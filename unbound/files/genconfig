@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ETCDCTL='/usr/bin/etcdctl'
-ETCDCTL_ENDPOINT='http://10.0.4.253:2379'
+ETCDCTL_ENDPOINT='http://10.0.4.252:2379'
 BASE='/unbound'
 
 UNBOUND_CONF='/etc/unbound/unbound.conf'

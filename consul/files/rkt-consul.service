@@ -15,6 +15,7 @@ ExecStart=/usr/bin/rkt \
 run consul \
 -- \
 agent \
+-bootstrap \
 -dc ${DC} \
 -domain ${DC} \
 -advertise ${IP_CONSUL} \

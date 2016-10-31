@@ -377,7 +377,7 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "span": 4,
-          "stack": false,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
@@ -1688,7 +1688,7 @@
     }
   ],
   "time": {
-    "from": "now-12h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -1724,7 +1724,7 @@
   },
   "refresh": "10s",
   "schemaVersion": 12,
-  "version": 8,
+  "version": 12,
   "links": [],
   "gnetId": null
 }

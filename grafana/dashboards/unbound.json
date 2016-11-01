@@ -1105,7 +1105,7 @@
           ],
           "title": "Query types",
           "type": "grafana-piechart-panel",
-          "valueName": "current"
+          "valueName": "total"
         },
         {
           "aliasColors": {},
@@ -1394,7 +1394,7 @@
           ],
           "title": "Query response time breakdown",
           "type": "grafana-piechart-panel",
-          "valueName": "current"
+          "valueName": "total"
         },
         {
           "aliasColors": {},
@@ -1681,7 +1681,7 @@
           ],
           "title": "Query response rcode breakdown",
           "type": "grafana-piechart-panel",
-          "valueName": "current"
+          "valueName": "total"
         }
       ],
       "title": "New row"
@@ -1724,7 +1724,7 @@
   },
   "refresh": "10s",
   "schemaVersion": 12,
-  "version": 12,
+  "version": 13,
   "links": [],
   "gnetId": null
 }

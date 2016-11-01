@@ -12,7 +12,7 @@
     {
       "collapse": false,
       "editable": true,
-      "height": "200px",
+      "height": "250px",
       "panels": [
         {
           "aliasColors": {},
@@ -815,7 +815,7 @@
   },
   "refresh": "10s",
   "schemaVersion": 12,
-  "version": 1,
+  "version": 2,
   "links": [],
   "gnetId": null
 }

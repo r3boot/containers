@@ -7,7 +7,7 @@ genconfig
 nsd-control-setup
 
 # Gather metrics
-# (sleep 3 ; gather_metrics) &
+(sleep 3 ; gather_metrics) &
 
 echo '[+] Starting nsd'
 exec /usr/sbin/nsd -d

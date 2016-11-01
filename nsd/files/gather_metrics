@@ -6,7 +6,7 @@ if [[ -z "${METRICS_SINK}" ]]; then
   exit 0
 fi
 
-METRICS_SINK="${METRICS_SINK}/write?db=unbound"
+METRICS_SINK="${METRICS_SINK}/write?db=nsd"
 LOOP_INTERVAL='15'
 
 echo "[+] Reporting metrics to ${METRICS_SINK}"
@@ -17,9 +17,9 @@ while :; do
   TIMESTAMP="$(expr ${T_NOW} \* 1000000000)"
 
   # Gather metrics and convert to influx line protocol format
-  METRICS=$(unbound-control stats | while read METRIC; do
+  METRICS=$(nsd-control stats | while read METRIC; do
     KEY="$(echo ${METRIC} | cut -d= -f1 | sed -e 's,\.,_,g')"
-    VALUE="$(echo ${METRIC} | cut -d= -f2)"
+    VALUE="$(echo ${METRIC} | cut -d= -f2-)"
     echo -e "${KEY},host=${HOSTNAME} value=${VALUE} ${TIMESTAMP}"
   done)
 

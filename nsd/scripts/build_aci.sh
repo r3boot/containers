@@ -32,7 +32,7 @@ acbuild --debug run -- rm -f /etc/nsd/nsd.conf.sample
 acbuild --debug copy build/etcdctl /usr/bin/etcdctl
 acbuild --debug copy files/genconfig /usr/sbin/genconfig
 acbuild --debug copy files/nsd.conf /etc/nsd/nsd.conf
-#acbuild --debug copy files/gather_metrics /usr/sbin/gather_metrics
+acbuild --debug copy files/gather_metrics /usr/sbin/gather_metrics
 acbuild --debug copy files/run_nsd /usr/sbin/run_nsd
 acbuild --debug mount add zonefiles /srv/nsd/zones
 acbuild --debug set-exec /usr/sbin/run_nsd

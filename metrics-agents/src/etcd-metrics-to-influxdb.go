@@ -112,6 +112,7 @@ func parseAndConvert(read_chan chan []string, write_chan chan string) {
 
 	for {
 		lines = <-read_chan
+		metrics = ""
 		timestamp = strconv.FormatInt(time.Now().UnixNano(), 10)
 		for _, line = range lines {
 			if line == "" {

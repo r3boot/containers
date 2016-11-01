@@ -23,8 +23,6 @@ ${ACI}:
 install:
 	${SET_ETCD_SETTINGS} /unbound ${SETTINGS}/global
 	${SET_ETCD_SETTINGS} /unbound/access_control ${SETTINGS}/access_control
-	${SET_ETCD_SETTINGS} /unbound/local_zone ${SETTINGS}/local_zone
-	${SET_ETCD_SETTINGS} /unbound/local_data ${SETTINGS}/local_data
 	${SET_ETCD_SETTINGS} /unbound/forward_zone ${SETTINGS}/forward_zone
 	rkt fetch --insecure-options=image ${BUILD_DIR}/${ACI}
 	install -o root -g root -m 0644 files/rkt-${TARGET}.service \

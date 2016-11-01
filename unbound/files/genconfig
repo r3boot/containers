@@ -50,22 +50,6 @@ ${ETCDCTL} ls ${BASE} | while read ETCD_KEY; do
         echo "  access-control: ${KEY} ${VALUE}" >> ${NEWCONF}
       done
       ;;
-    "local_zone")
-      ${ETCDCTL} ls ${BASE}/${KEY}/ | while read ETCD_ZONE_KEY; do
-        NAME="$(echo ${ETCD_ZONE_KEY} | sed -e "s,${BASE}/${KEY}/,,g")"
-        VALUE="$(${ETCDCTL} get ${ETCD_ZONE_KEY})"
-        echo "  local-zone: ${NAME} ${VALUE}" >> ${NEWCONF}
-      done
-      ;;
-    "local_data")
-      ${ETCDCTL} ls ${BASE}/${KEY}/ | while read ETCD_DATA_KEY; do
-        DATA_KEY="$(echo ${ETCD_DATA_KEY} | sed -e "s,${BASE}/${KEY}/,,g")"
-        NAME="$(echo ${DATA_KEY} | cut -d_ -f1)"
-        TYPE="$(echo ${DATA_KEY} | cut -d_ -f2)"
-        VALUE="$(${ETCDCTL} get ${ETCD_DATA_KEY})"
-        echo "  local-data: \"${NAME} 10800 IN ${TYPE} ${VALUE}\"" >> ${NEWCONF}
-      done
-      ;;
     "identity"|"version")
       VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
       if [[ -z "${VALUE}" ]]; then

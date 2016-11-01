@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PLUGINS="grafana-piechart-panel"
+PLUGINS="grafana-piechart-panel savantly-heatmap-panel"
 PLUGIN_DIR='/opt/grafana/data/plugins'
 
 GF_PLUGIN_DIR="${PLUGIN_DIR}"

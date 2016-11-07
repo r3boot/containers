@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /opt/prometheus
+exec /opt/prometheus/prometheus

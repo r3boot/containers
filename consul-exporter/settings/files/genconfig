@@ -1,0 +1,79 @@
+#!/bin/sh
+
+ETCDCTL='/usr/bin/etcdctl'
+ETCDCTL_ENDPOINT='http://10.0.4.252:2379'
+BASE='/nsd'
+
+UNBOUND_CONF='/etc/nsd/nsd.conf'
+NEWCONF='/etc/nsd/nsd.conf.new'
+
+# Do we use dynamic configuration at all?
+if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
+  echo "[W] ETCDCTL_ENDPOINT not defined"
+  exit 0
+fi
+
+# Check if nsd directory is configured
+${ETCDCTL} ls ${BASE} >/dev/null
+if [[ ${?} -ne 0 ]]; then
+  echo "[W] No nsd settings found under etcd"
+  exit 0
+fi
+
+echo -n "[+] Generating nsd.conf: "
+
+rm -f ${NEWCONF}
+
+echo -e "server:" > ${NEWCONF}
+${ETCDCTL} ls ${BASE} | while read ETCD_KEY; do
+  KEY="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/,,g")"
+  VALUE="$(${ETCDCTL} get ${ETCD_KEY} 2>/dev/null)"
+
+  if [[ -z "${VALUE}" ]]; then
+    continue
+  fi
+
+  echo "  ${KEY}: ${VALUE}" >> ${NEWCONF}
+done
+
+cat >>${NEWCONF} <<EOF
+
+remote-control:
+  control-enable: yes
+  control-interface: 127.0.0.1
+  control-interface: ::1
+  control-port: 8952
+  server-key-file: "/etc/nsd/nsd_server.key"
+  server-cert-file: "/etc/nsd/nsd_server.pem"
+  control-key-file: "/etc/nsd/nsd_control.key"
+  control-cert-file: "/etc/nsd/nsd_control.pem"
+EOF
+
+${ETCDCTL} ls ${BASE}/keys | while read ETCD_KEY; do
+  KEY="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/keys/,,g")"
+  VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
+  ALGO="$(echo ${VALUE} | cut -d^ -f1)"
+  SECRET="$(echo ${VALUE} | cut -d^ -f2-)"
+
+  cat >> ${NEWCONF} <<EOF
+
+key:
+  name: "${KEY}"
+  algorithm: ${ALGO}
+  secret: ${SECRET}
+EOF
+done
+
+${ETCDCTL} ls ${BASE}/zones | sed -e "s,${BASE}/zones/,,g" | while read ZONE; do
+  cat >> ${NEWCONF} <<EOF
+
+zone:
+  name: "${ZONE}"
+  zonefile: "db.${ZONE}"
+EOF
+  nsd-checkzone ${ZONE} /srv/nsd/zones/db.${ZONE}
+done
+
+echo "done"
+
+nsd-checkconf ${NEWCONF} && mv -v ${NEWCONF} ${UNBOUND_CONF}

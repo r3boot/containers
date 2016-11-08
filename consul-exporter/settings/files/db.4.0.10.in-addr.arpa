@@ -1,0 +1,10 @@
+0.42.10.in-addr.arpa	IN SOA	master.as65342.net. hostmaster.as65342.net. (
+				17         ; serial
+				3600       ; refresh (1 hour)
+				7200       ; retry (2 hours)
+				2419200    ; expire (4 weeks)
+				60         ; minimum (1 minute)
+				)
+			NS	ns.as65342.net.
+$ORIGIN 0.42.10.in-addr.arpa.
+

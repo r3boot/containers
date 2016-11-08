@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec /usr/sbin/consul_exporter -consul.server="consul.service.${DOMAIN}:8500"

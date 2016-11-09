@@ -36,3 +36,7 @@ scrape_configs:
   - job_name: 'consul'
     static_configs:
       - targets: ['consul-exporter.service.local:9107']
+
+  - job_name: 'unbound'
+    static_configs:
+      - targets: ['unbound.service.local:9107']

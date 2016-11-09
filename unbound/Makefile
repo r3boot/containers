@@ -1,5 +1,6 @@
 TARGET = unbound
 BUILD_DIR = ./build
+INSTALLED_DIR = ./installed
 SCRIPTS = ./scripts
 SETTINGS = ./settings
 
@@ -10,10 +11,13 @@ ETCDCTL = ../scripts/etcdctl
 SET_ETCD_SETTINGS = ../scripts/set-etcd-settings
 BASEDIR = /unbound
 
-NUM_THREADS = 1
-PORT = 53
+all: build_exporter ${ACI}
 
-all: ${ACI}
+build_exporter:
+	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
+	[[ -d ${INSTALLED_DIR} ]] || mkdir -p ${INSTALLED_DIR}
+	install -o root -g root -m 0755 files/build.sh ${BUILD_DIR}/build.sh
+	rkt-builder
 
 ${ACI}:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
@@ -30,4 +34,5 @@ install:
 
 clean:
 	[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR} || true
+	[[ -d ${INSTALLED_DIR} ]] && rm -rf ${INSTALLED_DIR} || true
 	rkt image rm ${TARGET} || true

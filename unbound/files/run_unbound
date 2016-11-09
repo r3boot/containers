@@ -13,6 +13,6 @@ unbound-control-setup
 genconfig
 
 # Gather metrics
-(sleep 3 ; gather_metrics) &
+(sleep 3 ; unbound_exporter) &
 
 exec /usr/sbin/unbound

@@ -5,11 +5,12 @@ FILES = ./files
 SCRIPTS = ./scripts
 DATA_DIR = /var/rkt/bird
 DATA_DIR6 = /var/rkt/bird6
+PACKAGES_DIR = ../packages
 
-VERSION = 1.6.0
+VERSION = 1.6.3
 TARBALL = ${TARGET}-${VERSION}.tar.gz
-UPSTREAM = ftp://bird.network.cz/pub
-SHA256 = db3dfe37deac73b38b7d6966e577985f7b8e23f246760cb095ad13b0d8010e13
+UPSTREAM = ftp://bird.network.cz/pub/bird
+SHA256 = 39c51cf57c3ba8b5978b2a657ffa2f647ec7f3ae643e91cf42ee5cb070cf7e7c
 ACI_BIRD = ${TARGET}-${VERSION}-amd64.aci
 ACI_BIRD6 = ${TARGET}6-${VERSION}-amd64.aci
 
@@ -29,21 +30,25 @@ extract:
 build_bird:
 	[[ -d ${INSTALL_DIR} ]] && rm -rf ${INSTALL_DIR} || true
 	mkdir -p ${INSTALL_DIR}
+	[[ -d ${PACKAGES_DIR} ]] || mkdir -p ${PACKAGES_DIR}
 	install -o root -g root -m 0755 ${FILES}/build_bird.sh \
 		${BUILD_DIR}/build.sh
 	sed -i -e "s,%VERSION%,${VERSION},g" ${BUILD_DIR}/build.sh
 	rkt-builder
 	cd ${INSTALL_DIR} && tar cvJf ../build/${TARGET}-${VERSION}-musl-amd64.tar.xz *
+	cp -v ${BUILD_DIR}/${TARGET}-${VERSION}-musl-amd64.tar.xz ../packages
 	[[ -d ${INSTALL_DIR} ]] && rm -rf ${INSTALL_DIR} || true
 
 build_bird6:
 	[[ -d ${INSTALL_DIR} ]] && rm -rf ${INSTALL_DIR} || true
 	mkdir -p ${INSTALL_DIR}
+	[[ -d ${PACKAGES_DIR} ]] || mkdir -p ${PACKAGES_DIR}
 	install -o root -g root -m 0755 ${FILES}/build_bird6.sh \
 		${BUILD_DIR}/build.sh
 	sed -i -e "s,%VERSION%,${VERSION},g" ${BUILD_DIR}/build.sh
 	rkt-builder
 	cd ${INSTALL_DIR} && tar cvJf ../build/${TARGET}6-${VERSION}-musl-amd64.tar.xz *
+	cp -v ${BUILD_DIR}/${TARGET}6-${VERSION}-musl-amd64.tar.xz ../packages
 	[[ -d ${INSTALL_DIR} ]] && rm -rf ${INSTALL_DIR} || true
 
 ${ACI_BIRD}:

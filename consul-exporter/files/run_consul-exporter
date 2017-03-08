@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec /usr/sbin/consul_exporter -consul.server="consul.service.${DC}:8500" >/dev/null

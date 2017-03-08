@@ -1,24 +1,20 @@
 TARGET = rkt-registrator
 BUILD_DIR = ./build
+INSTALLED_DIR = ./installed
+FILES_DIR = ./files
 SCRIPTS = ./scripts
 
 VERSION = latest
 UPSTREAM = https://github.com/r3boot/${TARGET}
 ACI = ${TARGET}-${VERSION}-amd64.aci
 
-all: fetch compile ${ACI}
+all: build ${ACI}
 
-fetch:
+build:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
-	[[ -d ${BUILD_DIR}/${TARGET} ]] && \
-		(cd ${BUILD_DIR}/${TARGET} ; git pull) || \
-		git clone ${UPSTREAM} ${BUILD_DIR}/${TARGET} 
-
-compile:
-	mkdir -p ${BUILD_DIR}/src/github.com/r3boot
-	cd ${BUILD_DIR}/src/github.com/r3boot ; ln -s ../../../rkt-registrator
-	cd ${BUILD_DIR} ; export GOPATH=`pwd` ; cd rkt-registrator ; go build -v
-
+	[[ -d ${INSTALLED_DIR} ]] || mkdir -p ${INSTALLED_DIR}
+	install -o root -g root -m 0755 ${FILES_DIR}/build.sh ${BUILD_DIR}/build.sh
+	rkt-builder
 
 ${ACI}:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
@@ -33,4 +29,5 @@ install:
 
 clean:
 	[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR} || true
+	[[ -d ${INSTALLED_DIR} ]] && rm -rf ${INSTALLED_DIR} || true
 	rkt image rm ${ACI_NAME} || true

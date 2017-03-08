@@ -19,9 +19,7 @@ acbuild --debug copy files/resolv.conf /etc/resolv.conf
 acbuild --debug copy files/repositories /etc/apk/repositories
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
-acbuild --debug run -- mkdir /lib64
-acbuild --debug run -- ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
-acbuild --debug copy build/rkt-registrator/rkt-registrator /usr/sbin/rkt-registrator
+acbuild --debug copy build/bin/rkt-registrator /usr/sbin/rkt-registrator
 acbuild --debug mount add cni /var/lib/cni
 acbuild --debug mount add rkt /var/lib/rkt
 acbuild --debug set-exec /usr/sbin/rkt-registrator

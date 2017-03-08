@@ -9,9 +9,9 @@ Slice=machine.slice
 ExecStartPre=/usr/local/bin/rkt-cleanup registrator
 ExecStart=/usr/bin/rkt \
 --net=default \
---hostname="${FQDN_REGISTRATOR}" \
---dns="10.0.4.254" \
---dns-search="${DOMAIN}" \
+--hostname=${FQDN_REGISTRATOR} \
+--dns=${UNBOUND_ANYCAST_IPV4} \
+--dns-search=${DOMAIN} \
 --volume=cni,kind=host,source=/var/lib/cni,readOnly=true \
 --volume=rkt,kind=host,source=/var/lib/rkt,readOnly=true \
 run rkt-registrator -- \

@@ -1,14 +1,14 @@
 #!/bin/sh
 
+if [[ -z "${ETCDCTL_ENDPOINTS}" ]]; then
+  echo "[E] ETCDCTL_ENDPOINTS not set"
+  exit 1
+fi
+
 ETCDCTL="$(dirname $(readlink -f ${0}))/etcdctl"
 
 if [[ ! -x "${ETCDCTL}" ]]; then
   echo "[E] etcdctl not found"
-  exit 1
-fi
-
-if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
-  echo "[E] ETCDCTL_ENDPOINT not set"
   exit 1
 fi
 
@@ -26,24 +26,14 @@ if [[ ! -f "${SETTINGS_FILE}" ]]; then
 fi
 
 if [[ ! -z "${CLEAR_BASEDIR}" ]]; then
-  ${ETCDCTL} rm -r ${BASEDIR}
-fi
-
-${ETCDCTL} ls ${BASEDIR} >/dev/null 2>&1
-if [[ ${?} -ne 0 ]]; then
-  ${ETCDCTL} mkdir ${BASEDIR}
+  ${ETCDCTL} del -r ${BASEDIR}
 fi
 
 cat ${SETTINGS_FILE} | while read SETTING; do
   KEY="$(echo ${SETTING} | cut -d= -f1)"
   VALUE="$(echo ${SETTING} | cut -d= -f2-)"
 
-  ${ETCDCTL} get ${BASEDIR}/${KEY} >/dev/null 2>&1
-  if [[ ${?} -eq 0 ]]; then
-    echo "[W] ${BASEDIR}/${KEY} already defined"
-    continue
-  fi
-
   echo -n "${BASEDIR}/${KEY} -> "
-  ${ETCDCTL} set ${BASEDIR}/${KEY} "${VALUE}"
+  curl -L -X PUT ${ETCD_ENDPOINTS}/v2/keys${BASEDIR}/${KEY} \
+    -d value="${VALUE}" >/dev/null 2>&1 && echo "ok" || echo "FAILED"
 done

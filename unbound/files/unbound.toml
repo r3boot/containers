@@ -1,0 +1,9 @@
+[template]
+src = "unbound.conf.tmpl"
+dest = "/etc/unbound/unbound.conf"
+keys = [ "/unbound" ]
+owner = "root"
+group = "unbound"
+mode = "0640"
+check_cmd = "/usr/sbin/unbound-checkconf {{.src}}"
+reload_cmd = "/usr/sbin/reload_unbound"

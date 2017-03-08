@@ -1,20 +1,21 @@
 #!/bin/sh
 
 ETCDCTL='/usr/bin/etcdctl'
-ETCDCTL_ENDPOINT='http://10.0.4.252:2379'
+ETCDCTL_ENDPOINTS='10.42.16.252:2379'
+ETCDCTL_API=3
 BASE='/unbound'
 
 UNBOUND_CONF='/etc/unbound/unbound.conf'
 NEWCONF='/etc/unbound/unbound.conf.new'
 
 # Do we use dynamic configuration at all?
-if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
-  echo "[W] ETCDCTL_ENDPOINT not defined"
+if [[ -z "${ETCDCTL_ENDPOINTS}" ]]; then
+  echo "[W] ETCDCTL_ENDPOINTS not defined"
   exit 0
 fi
 
 # Check if unbound directory is configured
-${ETCDCTL} ls ${BASE} >/dev/null
+${ETCDCTL} get ${BASE} >/dev/null
 if [[ ${?} -ne 0 ]]; then
   echo "[W] No unbound settings found under etcd"
   exit 0
@@ -30,7 +31,6 @@ server:
   statistics-interval: 0
   statistics-cumulative: no
   extended-statistics: yes
-  interface: 0.0.0.0
   do-daemonize: no
   username: "unbound"
   logfile: ""
@@ -39,36 +39,43 @@ server:
   auto-trust-anchor-file: /etc/unbound/root.key
 EOF
 
-${ETCDCTL} ls ${BASE} | while read ETCD_KEY; do
+${ETCDCTL} get --prefix ${BASE} --keys-only | egrep -v "${BASE}/forward_zone/|${BASE}/access_control/|^$" | while read ETCD_KEY; do
   KEY="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/,,g")"
 
   case "${KEY}" in
-    "access_control")
-      ${ETCDCTL} ls ${BASE}/${KEY}/ | while read ETCD_ACL_KEY; do
-        KEY="$(echo ${ETCD_ACL_KEY} | sed -e "s,${BASE}/${KEY}/,,g" -e 's,_,/,g')"
-        VALUE="$(${ETCDCTL} get ${ETCD_ACL_KEY})"
-        echo "  access-control: ${KEY} ${VALUE}" >> ${NEWCONF}
-      done
-      ;;
     "identity"|"version")
-      VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
+      VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
       if [[ -z "${VALUE}" ]]; then
         continue
       fi
       echo "  ${KEY}: ${VALUE}" >> ${NEWCONF}
       ;;
     "target-fetch-policy")
-      VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
+      VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
       echo "  ${KEY}: \"${VALUE}\"" >> ${NEWCONF}
+      ;;
+    "ip-address")
+      VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
+      echo ${VALUE} | sed -e 's/,/\n/g' | while read IP; do
+        echo "  ${KEY}: ${IP}" >> ${NEWCONF}
+      done
       ;;
     "forward_zone"):
       continue
       ;;
     *)
-      VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
+      VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
       echo "  ${KEY}: ${VALUE}" >> ${NEWCONF}
       ;;
   esac
+done
+
+${ETCDCTL} get --prefix ${BASE}/access_control --keys-only | egrep -v "^$" | while read ETCD_KEY; do
+  NETWORK="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/access_control/,,g")"
+  KEY="$(echo ${NETWORK} | sed -e 's,_,/,g')"
+
+  VALUE="$(${ETCDCTL} get --prefix ${ETCD_KEY} | tail -1)"
+  echo "  access-control: ${KEY} ${VALUE}" >> ${NEWCONF}
 done
 
 cat >>${NEWCONF} <<EOF
@@ -83,9 +90,9 @@ remote-control:
   control-cert-file: "/etc/unbound/unbound_control.pem"
 EOF
 
-${ETCDCTL} ls ${BASE}/forward_zone | while read ETCD_ZONE_KEY; do
+${ETCDCTL} get --prefix ${BASE}/forward_zone --keys-only | egrep -v "^$" | while read ETCD_ZONE_KEY; do
   NAME="$(echo ${ETCD_ZONE_KEY} | sed -e "s,${BASE}/forward_zone/,,g")"
-  ADDR="$(${ETCDCTL} get ${ETCD_ZONE_KEY})"
+  ADDR="$(${ETCDCTL} get ${ETCD_ZONE_KEY} | tail -1)"
   cat >> ${NEWCONF} <<EOF
 
 forward-zone:

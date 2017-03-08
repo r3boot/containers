@@ -1,0 +1,12 @@
+apiVersion: 1
+type: anycast
+meta:
+  name: dns
+spec:
+  asnum: 65342
+  ip: 10.42.1.53
+  ip6: 2001:7b8:607:1::53
+  healthCheck: /usr/sbin/unbound-control status
+  bgpPeers:
+    - tachikoma
+    - sasami

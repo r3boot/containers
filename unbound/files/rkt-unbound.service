@@ -10,10 +10,11 @@ ExecStartPre=/usr/local/bin/rkt-cleanup unbound
 ExecStart=/usr/bin/rkt \
 --net=default:IP=${IP_UNBOUND} \
 --hostname=${FQDN_UNBOUND} \
---dns=${IP_UNBOUND} \
+--dns=${UNBOUND_ANYCAST_IPV4} \
 --dns-search="${DOMAIN}" \
 --set-env-file=/etc/rkt-environment \
-run unbound
+run unbound \
+--caps-retain=CAP_NET_ADMIN,CAP_NET_BIND_SERVICE,CAP_SYS_CHROOT,CAP_CHOWN,CAP_SETGID,CAP_SETUID
 ExecStopPost=/usr/local/bin/rkt-cleanup unbound
 KillMode=mixed
 Restart=always

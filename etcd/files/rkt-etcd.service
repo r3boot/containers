@@ -15,8 +15,13 @@ ExecStart=/usr/bin/rkt \
 run etcd -- \
 --name ${FQDN_ETCD} \
 --data-dir /var/lib/etcd \
---advertise-client-urls "http://${IP_ETCD}:2379" \
---listen-client-urls "http://${IP_ETCD}:2379"
+--initial-cluster "default=http://${IP_ETCD}:2380,http://${ETCD_PEER_IP}:2380" \
+--initial-cluster-state existing \
+--initial-cluster-token "etcd-as65342" \
+--initial-advertise-peer-urls "http://${IP_ETCD}:2380,http://${ETCD_PEER_IP}:2380" \
+--advertise-client-urls "http://${IP_ETCD}:2379,http://${ETCD_PEER_IP}:2379" \
+--listen-client-urls "http://${IP_ETCD}:2379" \
+--listen-peer-urls "http://${IP_ETCD}:2380"
 ExecStopPost=/usr/local/bin/rkt-cleanup etcd
 KillMode=mixed
 Restart=always

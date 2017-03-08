@@ -20,9 +20,10 @@ acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
 acbuild --debug run -- apk add ca-certificates
 acbuild --debug run -- rm -f /var/cache/apk/*.gz
-acbuild --debug copy files/telemetry.json /etc/consul/telemetry.json
 acbuild --debug copy ./build/consul /usr/sbin/consul
 acbuild --debug copy ./build/ui /var/www/consul
+acbuild --debug copy ./build/consul_exporter /usr/sbin/consul_exporter
+acbuild --debug copy ./files/run_consul /usr/sbin/run_consul
 acbuild --debug mount add data /var/lib/consul
 acbuild --debug port add tcp-8300 tcp 8300
 acbuild --debug port add tcp-8301 tcp 8301
@@ -33,6 +34,6 @@ acbuild --debug port add tcp-8400 tcp 8400
 acbuild --debug port add tcp-8500 tcp 8500
 acbuild --debug port add tcp-8600 tcp 8600
 acbuild --debug port add udp-8600 udp 8600
-acbuild --debug set-exec /usr/sbin/consul
+acbuild --debug set-exec /usr/sbin/run_consul
 acbuild --debug write ./build/consul-${VERSION}-linux-amd64.aci
 acbuild end

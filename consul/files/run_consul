@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -x
+
+export IP_CONSUL
+
+consul agent \
+  -datacenter ${DC} \
+  -domain ${DC} \
+  -advertise ${IP_CONSUL} \
+  -bind ${IP_CONSUL} \
+  -client ${IP_CONSUL} \
+  -server \
+  -data-dir /var/lib/consul \
+  -ui-dir /var/www/consul \
+  -ui true \
+  -recursor ${UNBOUND_ANYCAST_IPV4} \
+  -node ${NAME_CONSUL} &
+
+sleep 3
+consul join -rpc-addr=${IP_CONSUL}:8400 ${CONSUL_PEER_IP}
+consul_exporter -consul.server=${IP_CONSUL}:8500

@@ -3,15 +3,17 @@ BUILD_DIR = ./build
 SCRIPTS = ./scripts
 SETTINGS = ./settings
 
-VERSION = 1.2.3
+VERSION = 1.5.2
 ACI = ${TARGET}-${VERSION}-amd64.aci
 TARBALL = ${TARGET}-${VERSION}.linux-amd64.tar.gz
 UPSTREAM_URL = https://github.com/prometheus/prometheus/releases/download/v${VERSION}
-SHA256SUM = 8421a5f31a2e4721e945abb19c7831df7c461755120f9d467ef6bf07cc572305
+SHA256SUM = 971c5f365c3f53f52d05729acf43962905832b33d740798094850a25645de5ae
 
 ETCDCTL = ../scripts/etcdctl
 SET_ETCD_SETTINGS = ../scripts/set-etcd-settings
-BASEDIR = /nsd
+CONFD = ../scripts/confd
+
+ETCD_BASEDIR = /services/prometheus
 
 all: fetch verify ${ACI}
 
@@ -28,13 +30,12 @@ extract:
 
 ${ACI}:
 	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
-	install -o root -g root -m 0755 ${ETCDCTL} ${BUILD_DIR}/etcdctl
+	install -o root -g root -m 0755 ${CONFD} ${BUILD_DIR}/confd
 	${SCRIPTS}/build_aci.sh ${VERSION}
 
 install:
-	#${SET_ETCD_SETTINGS} /nsd ${SETTINGS}/global
-	#${SET_ETCD_SETTINGS} /nsd/keys ${SETTINGS}/keys
-	#${SET_ETCD_SETTINGS} /nsd/zones ${SETTINGS}/zones
+	${SET_ETCD_SETTINGS} ${ETCD_BASEDIR} ${SETTINGS}/global
+	${SET_ETCD_SETTINGS} ${ETCD_BASEDIR}/jobs ${SETTINGS}/jobs
 	rkt fetch --insecure-options=image ${BUILD_DIR}/${ACI}
 	install -d -o root -g root -m 0755 /var/rkt/${TARGET}
 	install -o root -g root -m 0644 files/rkt-${TARGET}.service \

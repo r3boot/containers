@@ -1,0 +1,6 @@
+etcd-1=etcd-1.rkt:2379
+etcd-2=etcd-2.rkt:2379
+consul-1=consul-1.rkt:9107
+consul-2=consul-2.rkt:9107
+unbound-1=unbound-1.rkt:9107
+unbound-2=unbound-2.rkt:9107

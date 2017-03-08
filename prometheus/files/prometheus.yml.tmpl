@@ -1,0 +1,20 @@
+global:
+  scrape_interval:  {{getv "/prometheus/scrape_interval"}}
+  evaluation_interval: {{getv "/prometheus/evaluation_interval"}}
+  external_labels:
+      monitor: 'local-monitor'
+
+rule_files:
+  # - "first.rules"
+  # - "second.rules"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+{{range gets "/prometheus/jobs/*"}}
+  - job_name: '{{base .Key}}'
+    static_configs:
+      - targets: ['{{.Value}}']
+{{end}}

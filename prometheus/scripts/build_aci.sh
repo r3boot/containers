@@ -30,10 +30,13 @@ acbuild --debug run -- rm -f /root/${TARBALL}
 acbuild --debug run -- addgroup -S prometheus
 acbuild --debug run -- adduser -S -s /sbin/nologin -G prometheus -g 'Prometheus user' -h /opt/prometheus -D prometheus
 acbuild --debug copy files/prometheus.yml /opt/${DIR}/prometheus.yml
-acbuild --debug copy build/etcdctl /usr/bin/etcdctl
-#acbuild --debug copy files/genconfig /usr/sbin/genconfig
-#acbuild --debug copy files/prometheus.conf /etc/prometheus/prometheus.conf
-#acbuild --debug copy files/gather_metrics /usr/sbin/gather_metrics
+acbuild --debug copy build/confd /usr/sbin/confd
+acbuild --debug run -- install -d -o root -g root -m 0755 /etc/confd
+acbuild --debug run -- install -d -o root -g root -m 0755 /etc/confd/conf.d
+acbuild --debug run -- install -d -o root -g root -m 0755 /etc/confd/templates
+acbuild --debug copy files/confd.toml /etc/confd/confd.toml
+acbuild --debug copy files/prometheus.toml /etc/confd/conf.d/prometheus.toml
+acbuild --debug copy files/prometheus.yml.tmpl /etc/confd/templates/prometheus.yml.tmpl
 acbuild --debug copy files/run_prometheus /usr/sbin/run_prometheus
 acbuild --debug mount add data /opt/prometheus/data
 acbuild --debug set-exec /usr/sbin/run_prometheus

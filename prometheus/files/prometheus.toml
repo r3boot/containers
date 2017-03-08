@@ -1,0 +1,6 @@
+[template]
+src = "prometheus.yml.tmpl"
+dest = "/opt/prometheus/prometheus.yml"
+keys = [ "/prometheus" ]
+owner = "root"
+mode = "0640"

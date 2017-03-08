@@ -20,8 +20,6 @@ acbuild --debug copy files/repositories /etc/apk/repositories
 acbuild --debug run -- apk update
 acbuild --debug run -- apk upgrade
 acbuild --debug run -- apk add nsd openssl curl
-acbuild --debug run -- addgroup -S nsd
-acbuild --debug run -- adduser -S -s /sbin/nologin -G nsd -g 'NSD user' -h /srv/nsd -D nsd
 acbuild --debug run -- install -d -o root -g nsd -m 0750 /srv/nsd
 acbuild --debug run -- install -d -o root -g nsd -m 0750 /srv/nsd/zones
 acbuild --debug run -- install -d -o root -g nsd -m 0770 /srv/nsd/run
@@ -29,10 +27,16 @@ acbuild --debug run -- install -d -o root -g nsd -m 0770 /srv/nsd/tmp
 acbuild --debug run -- install -d -o root -g nsd -m 0770 /srv/nsd/var
 acbuild --debug run -- install -d -o root -g nsd -m 0770 /srv/nsd/log
 acbuild --debug run -- rm -f /etc/nsd/nsd.conf.sample
-acbuild --debug copy build/etcdctl /usr/bin/etcdctl
-acbuild --debug copy files/genconfig /usr/sbin/genconfig
+acbuild --debug copy build/confd /usr/sbin/confd
+acbuild --debug run -- install -d -o root -g root -m 0750 /etc/confd
+acbuild --debug run -- install -d -o root -g root -m 0750 /etc/confd/conf.d
+acbuild --debug run -- install -d -o root -g root -m 0750 /etc/confd/templates
+acbuild --debug copy files/confd.toml /etc/confd/confd.toml
+acbuild --debug copy files/nsd.toml /etc/confd/conf.d/nsd.toml
+acbuild --debug copy files/nsd.conf.tmpl /etc/confd/templates/nsd.conf.tmpl
+acbuild --debug copy files/reload_nsd /usr/sbin/reload_nsd
+acbuild --debug copy build/anycast-agent /usr/sbin/anycast-agent
 acbuild --debug copy files/nsd.conf /etc/nsd/nsd.conf
-acbuild --debug copy files/gather_metrics /usr/sbin/gather_metrics
 acbuild --debug copy files/run_nsd /usr/sbin/run_nsd
 acbuild --debug mount add zonefiles /srv/nsd/zones
 acbuild --debug set-exec /usr/sbin/run_nsd

@@ -1,0 +1,11 @@
+apiVersion: 1
+type: anycast
+meta:
+  name: authdns
+spec:
+  asnum: 65342
+  ip: 10.42.1.54
+  ip6: 2001:7b8:607:1::54
+  healthCheck: /usr/sbin/nsd-control status
+  bgpPeers:
+    - sasami

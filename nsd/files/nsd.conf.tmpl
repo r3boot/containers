@@ -1,0 +1,64 @@
+server:
+  chroot: {{getv "/nsd/chroot"}}
+  database: {{getv "/nsd/database"}}
+  debug-mode: {{getv "/nsd/debug-mode"}}
+  do-ip4: {{getv "/nsd/do-ip4"}}
+  do-ip6: {{getv "/nsd/do-ip6"}}
+  hide-version: {{getv "/nsd/hide-version"}}
+  identity: {{getv "/nsd/identity"}}
+{{range gets "/nsd/ip-address/*"}}
+  ip-address: {{base .Key}}
+{{end}}
+  ip-transparent: {{getv "/nsd/ip-transparent"}}
+  ipv4-edns-size: {{getv "/nsd/ipv4-edns-size"}}
+  ipv6-edns-size: {{getv "/nsd/ipv6-edns-size"}}
+  log-time-ascii: {{getv "/nsd/log-time-ascii"}}
+  logfile: {{getv "/nsd/logfile"}}
+  nsid: {{getv "/nsd/nsid"}}
+  pidfile: {{getv "/nsd/pidfile"}}
+  port: {{getv "/nsd/port"}}
+  round-robin: {{getv "/nsd/round-robin"}}
+  rrl-ipv4-prefix-length: {{getv "/nsd/rrl-ipv4-prefix-length"}}
+  rrl-ipv6-prefix-length: {{getv "/nsd/rrl-ipv6-prefix-length"}}
+  rrl-ratelimit: {{getv "/nsd/rrl-ratelimit"}}
+  rrl-size: {{getv "/nsd/rrl-size"}}
+  rrl-slip: {{getv "/nsd/rrl-slip"}}
+  rrl-whitelist-ratelimit: {{getv "/nsd/rrl-whitelist-ratelimit"}}
+  server-count: {{getv "/nsd/server-count"}}
+  statistics: {{getv "/nsd/statistics"}}
+  tcp-count: {{getv "/nsd/tcp-count"}}
+  tcp-query-count: {{getv "/nsd/tcp-query-count"}}
+  tcp-timeout: {{getv "/nsd/tcp-timeout"}}
+  username: {{getv "/nsd/username"}}
+  verbosity: {{getv "/nsd/verbosity"}}
+  xfrd-reload-timeout: {{getv "/nsd/xfrd-reload-timeout"}}
+  xfrdfile: {{getv "/nsd/xfrdfile"}}
+  xfrdir: {{getv "/nsd/xfrdir"}}
+  zonefiles-check: {{getv "/nsd/zonefiles-check"}}
+  zonefiles-write: {{getv "/nsd/zonefiles-write"}}
+  zonelistfile: {{getv "/nsd/zonelistfile"}}
+  zonesdir: {{getv "/nsd/zonesdir"}}
+
+remote-control:
+  control-enable: yes
+  control-interface: 127.0.0.1
+  control-interface: ::1
+  control-port: 8952
+  server-key-file: "/etc/nsd/nsd_server.key"
+  server-cert-file: "/etc/nsd/nsd_server.pem"
+  control-key-file: "/etc/nsd/nsd_control.key"
+  control-cert-file: "/etc/nsd/nsd_control.pem"
+
+{{range gets "/nsd/keys/*"}}
+key:
+  name: {{base .Key}}
+  algorithm: hmac-sha256
+  secret: {{.Value}}
+
+{{end}}
+{{range gets "/nsd/zones/*"}}
+zone:
+  name: "{{base .Key}}"
+  zonefile: "db.{{base .Key}}"
+
+{{end}}

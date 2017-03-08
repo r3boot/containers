@@ -1,20 +1,21 @@
 #!/bin/sh
 
 ETCDCTL='/usr/bin/etcdctl'
-ETCDCTL_ENDPOINT='http://10.0.4.252:2379'
+ETCDCTL_ENDPOINTS='10.42.16.252:2379'
+ETCDCTL_API=3
 BASE='/nsd'
 
 UNBOUND_CONF='/etc/nsd/nsd.conf'
 NEWCONF='/etc/nsd/nsd.conf.new'
 
 # Do we use dynamic configuration at all?
-if [[ -z "${ETCDCTL_ENDPOINT}" ]]; then
-  echo "[W] ETCDCTL_ENDPOINT not defined"
+if [[ -z "${ETCDCTL_ENDPOINTS}" ]]; then
+  echo "[W] ETCDCTL_ENDPOINTS not defined"
   exit 0
 fi
 
 # Check if nsd directory is configured
-${ETCDCTL} ls ${BASE} >/dev/null
+${ETCDCTL} get ${BASE} >/dev/null
 if [[ ${?} -ne 0 ]]; then
   echo "[W] No nsd settings found under etcd"
   exit 0
@@ -25,15 +26,22 @@ echo -n "[+] Generating nsd.conf: "
 rm -f ${NEWCONF}
 
 echo -e "server:" > ${NEWCONF}
-${ETCDCTL} ls ${BASE} | while read ETCD_KEY; do
+${ETCDCTL} get --prefix ${BASE} --keys-only | egrep -v "${BASE}/zones/|${BASE}/keys/|^$" | while read ETCD_KEY; do
   KEY="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/,,g")"
-  VALUE="$(${ETCDCTL} get ${ETCD_KEY} 2>/dev/null)"
+  VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
 
   if [[ -z "${VALUE}" ]]; then
     continue
   fi
 
-  echo "  ${KEY}: ${VALUE}" >> ${NEWCONF}
+  if [[ "${KEY}" == "ip-address" ]]; then
+    echo ${VALUE} | sed -e 's/,/\n/g' | while read IP; do
+      echo "  ${KEY}: ${IP}" >> ${NEWCONF}
+    done
+  else
+    echo "  ${KEY}: ${VALUE}" >> ${NEWCONF}
+  fi
+
 done
 
 cat >>${NEWCONF} <<EOF
@@ -49,9 +57,9 @@ remote-control:
   control-cert-file: "/etc/nsd/nsd_control.pem"
 EOF
 
-${ETCDCTL} ls ${BASE}/keys | while read ETCD_KEY; do
+${ETCDCTL} get --prefix ${BASE}/keys/ --keys-only | egrep -v "^$" | while read ETCD_KEY; do
   KEY="$(echo ${ETCD_KEY} | sed -e "s,${BASE}/keys/,,g")"
-  VALUE="$(${ETCDCTL} get ${ETCD_KEY})"
+  VALUE="$(${ETCDCTL} get ${ETCD_KEY} | tail -1)"
   ALGO="$(echo ${VALUE} | cut -d^ -f1)"
   SECRET="$(echo ${VALUE} | cut -d^ -f2-)"
 
@@ -64,7 +72,7 @@ key:
 EOF
 done
 
-${ETCDCTL} ls ${BASE}/zones | sed -e "s,${BASE}/zones/,,g" | while read ZONE; do
+${ETCDCTL} get --prefix ${BASE}/zones/ --keys-only | egrep -v "^$" | sed -e "s,${BASE}/zones/,,g" | while read ZONE; do
   cat >> ${NEWCONF} <<EOF
 
 zone:

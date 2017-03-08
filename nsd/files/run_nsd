@@ -1,13 +1,29 @@
 #!/bin/sh
 
-# Generate configuration
-genconfig
+# Add ipv6 address
+if [[ ! -z "${IP6_NSD}" ]]; then
+  echo "[+] Adding ${IP6_NSD} to container"
+  ip -6 addr add ${IP6_NSD}/64 dev eth0
+  ip -6 route add default via ${IP6_DEFAULT_GW}
+fi
 
-# Generate unbound-control keys if needed
+# Generate unbound-control keys
+echo '[+] Generating control keys'
 nsd-control-setup
 
-# Gather metrics
-(sleep 3 ; gather_metrics) &
+# Generate configuration
+echo '[+] Pulling configuration'
+until confd -onetime -node ${ETCD_ENDPOINTS}; do
+  echo "[+] Waiting for etcd to become available"
+  sleep 5
+done
+
+confd -node ${ETCD_ENDPOINTS} &
+echo '[+] Watching for configuration changes'
+
+# Anycast support
+echo '[+] Starting anycast agent'
+/usr/sbin/anycast-agent -name authdns &
 
 echo '[+] Starting nsd'
 exec /usr/sbin/nsd -d

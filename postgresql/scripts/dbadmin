@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DB_HOST='postgresql.service.local'
+DB_HOST="${POSTGRESQL_HOST}"
 DB_USER='dbadmin'
 DB_NAME='template1'
 DB_PASS='49XnohyQ71xblQ'

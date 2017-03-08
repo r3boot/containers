@@ -3,7 +3,7 @@ BUILD_DIR = ./build
 SCRIPTS = ./scripts
 SQL = ./sql
 
-VERSION = 9.5.3
+VERSION = 9.5.4
 ACI = ${TARGET}-${VERSION}-amd64.aci
 DBADMIN_ACI = dbadmin-${VERSION}-amd64.aci
 

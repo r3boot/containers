@@ -1,0 +1,34 @@
+{
+  "signing": {
+    "default": {
+    "ocsp_url": "{{getv "/cfssl/config/ocsp_url"}}",
+      "crl_url": "{{getv "/cfssl/config/crl_url"}}",
+      "expiry": "{{getv "/cfssl/config/default_expiry"}}",
+      "usages": [
+        "signing",
+        "key encipherment",
+        "client auth"
+      ]
+    },
+    "profiles": {
+      "ocsp": {
+        "usages": ["digital signature", "ocsp signing"],
+        "expiry": "{{getv "/cfssl/config/ocsp_expiry"}}"
+      },
+      "intermediate": {
+        "usages": ["cert sign", "crl sign"],
+        "expiry": "{{getv "/cfssl/config/intermediary_expiry"}}",
+        "ca_constraint": {"is_ca": true}
+      },
+      "server": {
+        "usages": ["signing", "key encipherment", "server auth"],
+        "expiry": "{{getv "/cfssl/config/server_expiry"}}"
+      },
+      "client": {
+        "usages": ["signing", "key encipherment", "client auth"],
+        "expiry": "{{getv "/cfssl/config/client_expiry"}}"
+      }
+    }
+  }
+}
+

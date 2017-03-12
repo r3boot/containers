@@ -1,0 +1,7 @@
+[template]
+src = "db-config.json.tmpl"
+dest = "/var/rkt/cfssl/db-config.json"
+keys = [ "/cfssl" ]
+owner = "root"
+group = "root"
+mode = "0640"

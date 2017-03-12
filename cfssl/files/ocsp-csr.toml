@@ -1,0 +1,7 @@
+[template]
+src = "ocsp-csr.json.tmpl"
+dest = "/var/rkt/cfssl/ocsp-csr.json"
+keys = [ "/cfssl" ]
+owner = "root"
+group = "root"
+mode = "0640"

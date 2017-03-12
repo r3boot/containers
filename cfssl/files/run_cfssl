@@ -1,0 +1,13 @@
+#!/bin/sh
+
+CFSSL_DIR='/etc/cfssl'
+cd ${CFSSL_DIR}
+
+exec /usr/sbin/cfssl serve \
+  -address 0.0.0.0 \
+  -config ${CFSSL_DIR}/cfssl-config.json \
+  -db-config ${CFSSL_DIR}/db-config.json \
+  -ca-key ${CFSSL_DIR}/intermediary-ca-key.pem \
+  -ca ${CFSSL_DIR}/intermediary-ca.pem \
+  -responder ${CFSSL_DIR}/ocsp-ca.pem \
+  -responder-key ${CFSSL_DIR}/ocsp-ca-key.pem

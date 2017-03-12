@@ -1,0 +1,14 @@
+{
+  "hosts": [
+    "ca.as65342.net"
+  ],
+  "names": [
+    {
+      "C": "NL",
+      "L": "Amersfoort",
+      "O": "AS65342 Network",
+      "OU": "Certificate Authority",
+      "ST": "Utrecht"
+    }
+  ]
+}

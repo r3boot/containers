@@ -1,0 +1,16 @@
+{
+  "CN":"{{getv "/cfssl/intermediary-csr/cn"}}",
+  "key": {
+    "algo": "{{getv "/cfssl/intermediary-csr/key_algo"}}",
+    "size": {{getv "/cfssl/intermediary-csr/key_size"}}
+  },
+  "names": [
+    {
+      "C": "{{getv "/cfssl/intermediary-csr/req_C"}}",
+      "ST": "{{getv "/cfssl/intermediary-csr/req_ST"}}",
+      "L": "{{getv "/cfssl/intermediary-csr/req_L"}}",
+      "O": "{{getv "/cfssl/intermediary-csr/req_O"}}",
+      "OU": "{{getv "/cfssl/intermediary-csr/req_OU"}}"
+    }
+  ]
+}

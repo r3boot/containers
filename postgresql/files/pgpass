@@ -1,2 +1,2 @@
 # hostname:port:database:username:password
-10.0.4.252:5432:template1:dbadmin:49XnohyQ71xblQ
+postgresql.service.as65342:5432:template1:dbadmin:49XnohyQ71xblQ

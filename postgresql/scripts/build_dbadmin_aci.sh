@@ -22,6 +22,7 @@ acbuild --debug run -- apk upgrade
 acbuild --debug run -- apk add postgresql-client
 acbuild --debug copy files/pgpass /root/.pgpass
 acbuild --debug run -- chmod 0600 /root/.pgpass
+acbuild --debug run -- chown root:root /root/.pgpass
 acbuild --debug copy files/run_psql /usr/sbin/run_psql
 acbuild --debug set-exec /usr/sbin/run_psql
 acbuild --debug write ./build/dbadmin-${VERSION}-amd64.aci

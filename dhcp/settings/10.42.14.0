@@ -1,0 +1,4 @@
+netmask=255.255.255.0
+routers=10.42.14.1
+range_start=10.42.14.100
+range_end=10.42.14.200

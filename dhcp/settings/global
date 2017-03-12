@@ -1,0 +1,7 @@
+domain-name=as65342.net
+domain-name-servers=10.42.1.53
+dhcp6_name-servers=2001:7b8:607:1::53
+next-server=10.42.1.69
+filename=pxelinux.0
+default-lease-time=86400
+max-lease-time=604800

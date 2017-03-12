@@ -1,0 +1,52 @@
+ddns-update-style none;
+option domain-name "{{getv "/dhcp/global/domain-name"}}";
+option domain-name-servers {{getv "/dhcp/global/domain-name-servers"}};
+option dhcp6.name-servers {{getv "/dhcp/global/dhcp6_name-servers"}};
+next-server {{getv "/dhcp/global/next-server"}};
+filename "{{getv "/dhcp/global/filename"}}";
+allow bootp;
+
+default-lease-time {{getv "/dhcp/global/default-lease-time"}};
+max-lease-time {{getv "/dhcp/global/max-lease-time"}};
+authoritative;
+
+{{$hostname := getenv "FQDN_DHCP"}}
+{{$role_path := printf "/dhcp/hosts/%s/role" $hostname}}
+{{$localip_path := printf "/dhcp/hosts/%s/local" $hostname}}
+{{$remoteip_path := printf "/dhcp/hosts/%s/remote" $hostname}}
+{{$role := getv $role_path}}
+failover peer "dhcp-failover" {
+  {{$role}};
+  address {{getv $localip_path}};
+  port {{getv "/dhcp/failover/port"}};
+  peer address {{getv $remoteip_path}};
+  peer port {{getv "/dhcp/failover/port"}};
+  max-response-delay {{getv "/dhcp/failover/max-response-delay"}};
+  max-unacked-updates {{getv "/dhcp/failover/max-unacked-updates"}};
+  load balance max seconds {{getv "/dhcp/failover/load_balance_max_seconds"}};
+  {{if (eq $role "primary")}}
+  mclt {{getv "/dhcp/failover/mclt"}};
+  split {{getv "/dhcp/failover/split"}};
+  {{end}}
+}
+
+{{range $thisnet := lsdir "/dhcp/interfaces"}}
+{{$netmask_path := printf "/dhcp/interfaces/%s/netmask" $thisnet}}
+subnet {{$thisnet}} netmask {{getv $netmask_path}} {}
+{{end}}
+
+{{range $thisnet := lsdir "/dhcp/subnets"}}
+{{$netmask_path := printf "/dhcp/subnets/%s/netmask" $thisnet}}
+{{$routers_path := printf "/dhcp/subnets/%s/routers" $thisnet}}
+{{$start_path := printf "/dhcp/subnets/%s/range_start" $thisnet}}
+{{$end_path := printf "/dhcp/subnets/%s/range_end" $thisnet}}
+{{$statics_path := printf "/dhcp/subnets/%s/statics/*" $thisnet}}
+subnet {{$thisnet}} netmask {{getv $netmask_path}} {
+  option routers {{getv $routers_path}};
+  pool {
+    failover peer "dhcp-failover";
+    range {{getv $start_path}} {{getv $end_path}};
+  }
+}
+
+{{end}}

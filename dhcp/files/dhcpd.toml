@@ -1,0 +1,9 @@
+[template]
+src = "dhcpd.conf.tmpl"
+dest = "/etc/dhcpd.conf"
+keys = [ "/dhcp" ]
+owner = "root"
+group = "dhcp"
+mode = "0640"
+check_cmd = "/usr/sbin/dhcpd -t -cf {{.src}}"
+reload_cmd = "/usr/bin/pkill -HUP dhcpd || true"

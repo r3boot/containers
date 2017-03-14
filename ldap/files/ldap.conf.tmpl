@@ -1,0 +1,13 @@
+BASE  {{getv "/ldap/global/base_dn"}}
+URI {{getv "/ldap/global/uri"}}
+ssl start_tls
+
+TLS_CACERT  /etc/cfssl/ca-bundle.pem
+TLS_CERT    /etc/cfssl/ldap/ldap.pem
+TLS_KEY     /etc/cfssl/ldap/ldap-key.pem
+TLS_REQCERT    {{getv "/ldap/global/tls_reqcert"}}
+#TLS_CRLFILE    /etc/ssl/crl/AS65342-PKI.crl
+#TLS_CRLCHECK   all
+
+timelimit       {{getv "/ldap/global/timelimit"}}
+bind_timelimit  {{getv "/ldap/global/bind_timelimit"}}

@@ -1,0 +1,7 @@
+[template]
+src = "ldap.conf.tmpl"
+dest = "/etc/openldap/ldap.conf"
+keys = [ "/ldap" ]
+owner = "root"
+group = "root"
+mode = "0644"

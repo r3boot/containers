@@ -1,0 +1,7 @@
+[template]
+src = "config.json.tmpl"
+dest = "/etc/cfssl/ldap/config.json"
+keys = [ "/ldap" ]
+owner = "root"
+group = "root"
+mode = "0644"

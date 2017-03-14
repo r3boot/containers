@@ -1,0 +1,7 @@
+cachesize_bytes=2097152
+lg_regionmax=1048576
+lg_bsize=524288
+lg_max=4194304
+lk_max_objects=5000
+lk_max_locks=5000
+lk_max_lockers=5000

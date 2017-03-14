@@ -1,0 +1,44 @@
+#!/bin/sh
+
+DATA_DIR='/var/lib/openldap/openldap-data'
+
+# Add ipv6 address
+if [[ ! -z "${IP6_LDAP}" ]]; then
+  echo "[+] Adding ${IP6_LDAP} to container"
+  ip -6 addr add ${IP6_LDAP}/64 dev eth0
+  ip -6 route add default via ${IP6_DEFAULT_GW}
+fi
+
+# Generate configuration
+echo '[+] Pulling configuration'
+until confd -onetime -node ${ETCD_ENDPOINTS}; do
+  echo '[+] Waiting for etcd to become available'
+  sleep 5
+done
+
+confd -node ${ETCD_ENDPOINTS} &
+echo '[+] Watching for configuration changes'
+
+# Fetch x509 certificate
+echo '[+] Fetching x509 certificate'
+until update_certs; do
+  echo '[+] Waiting for cfssl to become available'
+  sleep 5
+done
+
+# Fix permission for data directory
+install -d -o root -g ldap -m 0770 ${DATA_DIR}
+
+if [[ ! -f "${DATA_DIR}/__db.001" ]]; then
+  echo '[+] Initializing directory'
+  slapadd -v -l /root/directory.ldif
+  chown -R ldap:ldap ${DATA_DIR}/*
+  chown root:ldap ${DATA_DIR}/DB_CONFIG
+fi
+rm -f /root/directory.ldif
+
+# Fix permission for data directory
+install -d -o root -g ldap -m 0770 ${DATA_DIR}
+
+echo '[+] Starting slapd'
+exec /usr/sbin/slapd -h "ldaps:/// ldapi://" -g ldap -u ldap -f /etc/openldap/slapd.conf  -d1

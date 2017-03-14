@@ -1,0 +1,32 @@
+dn: dc=as65342,dc=net
+dc: as65342
+description: as65342
+objectClass: dcObject
+objectClass: top
+objectClass: domain
+
+dn: ou=services,dc=as65342,dc=net
+ou: services
+objectClass: organizationalUnit
+
+dn: uid=replicate,ou=services,dc=as65342,dc=net
+userPassword:: e1NIQX1vdHp1NnppY2ZKVnNjd0o5ZG9ncm5jZ3RtQWc9
+uid: replicate
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+sn: useraccount
+cn: LDAP replicate account
+
+dn: ou=people,dc=as65342,dc=net
+ou: people
+objectClass: organizationalUnit
+
+dn: ou=groups,dc=as65342,dc=net
+ou: groups
+objectClass: organizationalUnit
+
+dn: ou=mail,dc=as65342,dc=net
+ou: mail
+objectClass: organizationalUnit

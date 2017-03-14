@@ -1,0 +1,7 @@
+[template]
+src = "DB_CONFIG.tmpl"
+dest = "/var/lib/openldap/openldap-data/DB_CONFIG"
+keys = [ "/ldap" ]
+owner = "root"
+group = "ldap"
+mode = "0644"

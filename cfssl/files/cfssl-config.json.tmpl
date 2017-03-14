@@ -21,7 +21,7 @@
         "ca_constraint": {"is_ca": true}
       },
       "server": {
-        "usages": ["signing", "key encipherment", "server auth"],
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
         "expiry": "{{getv "/cfssl/config/server_expiry"}}"
       },
       "client": {

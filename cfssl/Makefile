@@ -47,8 +47,10 @@ install:
 	${SET_ETCD_SETTINGS} ${ETCD_BASEDIR}/database ${SETTINGS}/database
 	${SET_ETCD_SETTINGS} ${ETCD_BASEDIR}/intermediary-csr ${SETTINGS}/intermediary-csr
 	${SET_ETCD_SETTINGS} ${ETCD_BASEDIR}/ocsp-csr ${SETTINGS}/ocsp-csr
-	cp -Rp ${BUILD_DIR}/bin-glibc ../scripts/cfssl-glibc
-	cp -Rp ${BUILD_DIR}/bin-musl ../scripts/cfssl-musl
+	[[ -d ../scripts/cfssl-glibc ]] || mkdir -p ../scripts/cfssl-glibc
+	cp -Rp ${BUILD_DIR}/bin-glibc/* ../scripts/cfssl-glibc/
+	[[ -d ../scripts/cfssl-musl ]] || mkdir -p ../scripts/cfssl-musl
+	cp -Rp ${BUILD_DIR}/bin-musl/* ../scripts/cfssl-musl/
 	rkt fetch --insecure-options=image ${BUILD_DIR}/${ACI}
 	rkt fetch --insecure-options=image ${BUILD_DIR}/${OCSP_ACI}
 	install -d -o root -g root -m 0750 /var/rkt/cfssl
@@ -87,6 +89,8 @@ install:
 		/usr/local/sbin/cfssl_update_ocsp.sh
 	install -o root -g root -m 0755 files/cfssl_update_certs.sh \
 		/usr/local/sbin/cfssl_update_certs.sh
+	install -o root -g root -m 0755 files/cfssl_update_certs.sh \
+		../scripts/cfssl_update_certs.sh
 
 clean:
 	[[ -d "${BUILD_DIR}" ]] && rm -rf ${BUILD_DIR} || true

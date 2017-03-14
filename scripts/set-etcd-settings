@@ -34,6 +34,7 @@ cat ${SETTINGS_FILE} | while read SETTING; do
   VALUE="$(echo ${SETTING} | cut -d= -f2-)"
 
   echo -n "${BASEDIR}/${KEY} -> "
+  #${ETCDCTL} put ${BASEDIR}/${KEY} "${VALUE}"
   curl -L -X PUT ${ETCD_ENDPOINTS}/v2/keys${BASEDIR}/${KEY} \
     -d value="${VALUE}" >/dev/null 2>&1 && echo "ok" || echo "FAILED"
 done

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+WWWROOT='/srv/wwwroot'
+LOGS='/srv/logs'
+
+install -d -o root -g nginx -m 0770 /var/log/nginx
+
+# Generate configuration
+echo '[+] Pulling configuration'
+until confd -onetime -node ${ETCD_ENDPOINTS}; do
+  echo "[+] Waiting for etcd to become available"
+  sleep 5
+done
+
+confd -node ${ETCD_ENDPOINTS} &
+echo '[+] Watching for configuration changes'
+
+echo '[+] Starting nginx'
+exec /usr/sbin/nginx

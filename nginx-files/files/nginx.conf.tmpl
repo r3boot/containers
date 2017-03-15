@@ -1,0 +1,37 @@
+user              nginx;
+daemon            off;
+pid               /var/run/nginx.pid;
+worker_processes  {{getv "/nginx-files/worker_processes"}};
+
+events {
+  worker_connections  {{getv "/nginx-files/worker_connections"}};
+}
+
+http {
+  include       mime.types;
+  default_type  application/octet-stream;
+
+  log_format main   '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+  sendfile          {{getv "/nginx-files/sendfile"}};
+  tcp_nodelay       {{getv "/nginx-files/tcp_nodelay"}};
+  keepalive_timeout {{getv "/nginx-files/keepalive_timeout"}};
+  gzip              {{getv "/nginx-files/gzip"}};
+
+  server {
+    listen      80;
+    listen      [::]:80;
+    server_name {{getv "/nginx-files/server_name"}};
+
+    root /srv/wwwroot;
+
+    access_log  /srv/logs/access.log main;
+    error_log   /srv/logs/error.log;
+
+    location / {
+      autoindex on;
+    }
+  }
+}

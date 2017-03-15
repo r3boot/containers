@@ -94,7 +94,7 @@ access to dn.base=""
 # entry below
 access to attrs=userPassword,sambaPwdLastSet,sambaPwdMustChange,sambaPwdCanChange,shadowMax,shadowExpire
   by dn="cn=ldapadmin,dc=as65342,dc=net" write
-  by dn="uid=replicate,ou=people,dc=as65342,dc=net" read
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
   by anonymous auth
   by self write
   by * none
@@ -105,7 +105,7 @@ access to attrs=userPassword,sambaPwdLastSet,sambaPwdMustChange,sambaPwdCanChang
 # admin entry below
 access to attrs=sambaLmPassword,sambaNtPassword
   by dn="cn=ldapadmin,dc=as65342,dc=net" write
-  by dn="uid=replicate,ou=people,dc=as65342,dc=net" read
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
   by anonymous auth
   by self write
   by * none
@@ -113,7 +113,7 @@ access to attrs=sambaLmPassword,sambaNtPassword
 # Allow users to update their own information
 access to attrs=givenName,sn,mail,jpegPhoto
   by dn="cn=ldapadmin,dc=as65342,dc=net" write
-  by dn="uid=replicate,ou=people,dc=as65342,dc=net" read
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
   by self write
   by * read
 

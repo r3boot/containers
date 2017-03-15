@@ -10,7 +10,7 @@ ou: services
 objectClass: organizationalUnit
 
 dn: uid=replicate,ou=services,dc=as65342,dc=net
-userPassword:: e1NIQX1vdHp1NnppY2ZKVnNjd0o5ZG9ncm5jZ3RtQWc9
+userPassword: {SHA}otzu6zicfJVscwJ9dogrncgtmAg=
 uid: replicate
 objectClass: top
 objectClass: person

@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -x
+
+SCRIPTS_DIR="$(dirname $(readlink -f ${0}))"
+
+WWWROOT='/var/rkt/files/wwwroot'
+GOBIN_DIR="${WWWROOT}/gobin"
+LIBC_DIR="${GOBIN_DIR}/linux-libc-amd64"
+MUSL_DIR="${GOBIN_DIR}/linux-musl-amd64"
+
+INST_DIR="install -v -d -o root -g root -m 0755"
+INST_FILE="install -v -o root -g root -m 0644"
+
+${INST_DIR} ${GOBIN_DIR}
+${INST_DIR} ${LIBC_DIR}
+${INST_DIR} ${MUSL_DIR}
+
+${INST_FILE} ${SCRIPTS_DIR}/aactl ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/etcdctl ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-bundle ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-certinfo ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssljson ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-newkey ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-scan ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/goose ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/mkbundle ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/multirootca ${LIBC_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/rice ${LIBC_DIR}
+
+${INST_FILE} ${SCRIPTS_DIR}/anycast-agent ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/confd ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-bundle ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-certinfo ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssljson ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-newkey ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/cfssl-scan ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/goose ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/mkbundle ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/multirootca ${MUSL_DIR}
+${INST_FILE} ${SCRIPTS_DIR}/cfssl-glibc/rice ${MUSL_DIR}

@@ -1,9 +1,0 @@
-#!/bin/sh
-
-
-# Configure database
-DBADMIN='/usr/bin/dbadmin'
-${DBADMIN} add user msf:pv5WBrx7riN76i
-${DBADMIN} add database msfdb:msf
-
-exec /opt/msf/msfconsole ${@}

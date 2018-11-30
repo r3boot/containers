@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Add forward zones to unbound.conf
+echo -e ${UNBOUND_FORWARD_ZONES} >> /etc/unbound/unbound.conf
+
+until host nsd.dns >/dev/null 2>&1; do
+  echo "[+] Waiting for nsd service to become available"
+  sleep 1
+done
+
+NSD_IP="$(host nsd.dns | grep 'has address' | awk '{print $4}')"
+
+dig @${NSD_IP} soa as65342.net
+host -t soa as65342.net ${NSD_IP}
+
+# Set forward address
+sed -i -e "s,%FORWARD_ADDR%,${NSD_IP},g" /etc/unbound/unbound.conf
+
+cat /etc/unbound/unbound.conf
+
+# Update root.key
+unbound-anchor -a /etc/unbound/root.key -v
+
+# Generate unbound-control keys if needed
+unbound-control-setup
+
+unbound-checkconf /etc/unbound/unbound.conf
+
+exec /usr/sbin/unbound -d

@@ -1,5 +1,0 @@
-backend = "etcd"
-log-level = "info"
-interval = 3
-noop = false
-prefix = "/services"

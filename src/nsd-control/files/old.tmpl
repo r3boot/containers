@@ -1,0 +1,61 @@
+server:
+  chroot: {{key "services/nsd/global/chroot"}}
+  database: {{key "services/nsd/global/database"}}
+  debug-mode: {{key "services/nsd/global/debug-mode"}}
+  do-ip4: {{key "services/nsd/global/do-ip4"}}
+  do-ip6: {{key "services/nsd/global/do-ip6"}}
+  hide-version: {{key "services/nsd/global/hide-version"}}
+  identity: {{key "services/nsd/global/identity"}}
+  ip-transparent: {{key "services/nsd/global/ip-transparent"}}
+  ipv4-edns-size: {{key "services/nsd/global/ipv4-edns-size"}}
+  ipv6-edns-size: {{key "services/nsd/global/ipv6-edns-size"}}
+  log-time-ascii: {{key "services/nsd/global/log-time-ascii"}}
+  logfile: {{key "services/nsd/global/logfile"}}
+  nsid: {{key "services/nsd/global/nsid"}}
+  pidfile: {{key "services/nsd/global/pidfile"}}
+  port: {{key "services/nsd/global/port"}}
+  round-robin: {{key "services/nsd/global/round-robin"}}
+  rrl-ipv4-prefix-length: {{key "services/nsd/global/rrl-ipv4-prefix-length"}}
+  rrl-ipv6-prefix-length: {{key "services/nsd/global/rrl-ipv6-prefix-length"}}
+  rrl-ratelimit: {{key "services/nsd/global/rrl-ratelimit"}}
+  rrl-size: {{key "services/nsd/global/rrl-size"}}
+  rrl-slip: {{key "services/nsd/global/rrl-slip"}}
+  rrl-whitelist-ratelimit: {{key "services/nsd/global/rrl-whitelist-ratelimit"}}
+  server-count: {{key "services/nsd/global/server-count"}}
+  statistics: {{key "services/nsd/global/statistics"}}
+  tcp-count: {{key "services/nsd/global/tcp-count"}}
+  tcp-query-count: {{key "services/nsd/global/tcp-query-count"}}
+  tcp-timeout: {{key "services/nsd/global/tcp-timeout"}}
+  username: {{key "services/nsd/global/username"}}
+  verbosity: {{key "services/nsd/global/verbosity"}}
+  xfrd-reload-timeout: {{key "services/nsd/global/xfrd-reload-timeout"}}
+  xfrdfile: {{key "services/nsd/global/xfrdfile"}}
+  xfrdir: {{key "services/nsd/global/xfrdir"}}
+  zonefiles-check: {{key "services/nsd/global/zonefiles-check"}}
+  zonefiles-write: {{key "services/nsd/global/zonefiles-write"}}
+  zonelistfile: {{key "services/nsd/global/zonelistfile"}}
+  zonesdir: {{key "services/nsd/global/zonesdir"}}
+
+remote-control:
+  control-enable: yes
+  control-interface: 127.0.0.1
+  control-interface: ::1
+  control-port: 8952
+  server-key-file: "/etc/nsd/nsd_server.key"
+  server-cert-file: "/etc/nsd/nsd_server.pem"
+  control-key-file: "/etc/nsd/nsd_control.key"
+  control-cert-file: "/etc/nsd/nsd_control.pem"
+
+{{range ls "services/nsd/keys"}}
+key:
+  name: {{.Key}}
+  algorithm: hmac-sha256
+  secret: {{.Value}}
+
+{{end}}
+{{range ls "services/nsd/zones"}}
+zone:
+  name: "{{.Key}}"
+  zonefile: "db.{{.Key}}"
+
+{{end}}

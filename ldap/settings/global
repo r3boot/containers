@@ -1,6 +1,0 @@
-base_dn=dc=as65342,dc=net
-root_dn=cn=ldapadmin,dc=as65342,dc=net
-uri=ldaps://ldap.as65342.net
-tls_reqcert=always
-timelimit=1
-bind_timelimit=1

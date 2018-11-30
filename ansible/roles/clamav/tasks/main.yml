@@ -1,0 +1,82 @@
+- name: prefetch container
+  shell: docker pull as65342/clamav:{{ version }}
+  tags:
+    - clamav
+
+- name: add group
+  group:
+    name: clamav
+    gid: "{{ uidgid }}"
+  tags:
+  - clamav
+
+- name: add user
+  user:
+    name: clamav
+    uid: "{{ uidgid }}"
+    group: clamav
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: ClamAV system account
+  tags:
+    - clamav
+
+- name: create config directory
+  file:
+    dest: /etc/clamav
+    owner: root
+    group: clamav
+    mode: 0750
+  tags:
+    - clamav
+
+- name: install configuration file
+  template:
+    src: clamd.conf.j2
+    dest: /etc/clamav/clamd.conf
+    owner: root
+    group: clamav
+    mode: 0750
+  notify:
+  - restart service
+  tags:
+    - clamav
+
+- name: create database directory
+  file:
+    dest: /var/lib/clamav
+    owner: root
+    group: clamav
+    mode: 1770
+  tags:
+    - clamav
+
+- name: create log directory
+  file:
+    dest: /var/log/clamav
+    owner: root
+    group: clamav
+    mode: 1770
+  tags:
+    - clamav
+
+- name: install unit file
+  template:
+    src: clamd.service.j2
+    dest: /etc/systemd/system/clamd.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart service
+  tags:
+    - clamav
+
+- name: enable service
+  systemd:
+    name: clamd
+    enabled: yes
+    state: started
+  tags:
+    - clamav

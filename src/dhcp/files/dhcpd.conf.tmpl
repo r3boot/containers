@@ -1,0 +1,21 @@
+ddns-update-style none;
+option domain-name "%DHCPD_DOMAIN_NAME%";
+option domain-name-servers %DHCPD_DOMAIN_NAME_SERVERS%;
+option dhcp6.name-servers %DHCPD_DHCP6_NAME_SERVERS%;
+next-server %DHCPD_NEXT_SERVER%;
+filename "%DHCPD_FILENAME%";
+allow bootp;
+
+default-lease-time %DHCPD_DEFAULT_LEASE_TIME%;
+max-lease-time %DHCPD_MAX_LEASE_TIME%;
+authoritative;
+
+failover peer "dhcp-failover" {
+  %DHCPD_FAILOVER_ROLE%;
+  address %DHCPD_MY_ADDR%;
+  port 647;
+  peer address %DHCPD_PEER_ADDR%;
+  peer port 647;
+  max-response-delay 30;
+  max-unacked-updates 10;
+  load balance max seconds 3;

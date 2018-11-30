@@ -1,0 +1,6 @@
+#!/bin/sh
+
+exec docker run --rm -it --network host \
+    -v /etc/nsd/nsd.conf:/etc/nsd/nsd.conf \
+    -v /etc/nsd/control:/etc/nsd/control \
+    as65342/nsd-control:{{ version }} ${@}

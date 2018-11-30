@@ -1,0 +1,77 @@
+- name: prefetch container
+  shell: docker pull as65342/nsd:{{ version }}
+  tags:
+    - nsd
+
+- name: add group
+  group:
+    name: nsd
+    gid: "{{ uidgid }}"
+  tags:
+  - nsd
+
+- name: add user
+  user:
+    name: nsd
+    uid: "{{ uidgid }}"
+    group: nsd
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: NSD system account
+  tags:
+    - nsd
+
+- name: create config directories
+  file:
+    dest: /etc/{{ item }}
+    owner: root
+    group: nsd
+    mode: 0750
+  with_items:
+    - nsd
+    - nsd/zones
+    - nsd/control
+  tags:
+    - nsd
+
+- name: install configuration file
+  template:
+    src: nsd.conf.j2
+    dest: /etc/nsd/nsd.conf
+    owner: root
+    group: nsd
+    mode: 0640
+  notify:
+  - restart nsd
+  tags:
+    - nsd
+
+- name: create log directory
+  file:
+    dest: /var/log/nsd
+    owner: root
+    group: nsd
+    mode: 1770
+  tags:
+    - nsd
+
+- name: install unit file
+  template:
+    src: nsd.service.j2
+    dest: /etc/systemd/system/nsd.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nsd
+  tags:
+    - nsd
+
+- name: enable service
+  systemd:
+    name: nsd
+    enabled: yes
+    state: started
+  tags:
+    - nsd

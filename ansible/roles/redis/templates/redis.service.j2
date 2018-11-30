@@ -1,0 +1,15 @@
+[Unit]
+Description=Redis server running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name redis \
+  --network host \
+  -v /etc/redis.conf:/etc/redis.conf \
+  -v /var/lib/redis:/var/lib/redis \
+  as65342/redis:{{ version }}
+
+[Install]
+WantedBy=multi-user.target

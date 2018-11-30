@@ -1,0 +1,12 @@
+- name: deploy all containers on services.as65342.net
+  hosts:
+    - services
+  user: r3boot
+  become: true
+  roles:
+    - nsd
+    - nsd-control
+    - redis
+    - redis-cli
+    - clamav
+    - freshclam

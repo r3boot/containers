@@ -1,7 +1,0 @@
-[template]
-src = "ca-csr.json.tmpl"
-dest = "/var/rkt/cfssl/ca-csr.json"
-keys = [ "/cfssl" ]
-owner = "root"
-group = "root"
-mode = "0640"

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+NSD_CONTROL_DIR='/etc/nsd/control'
+
+# Generate nsd-control keys if needed
+if [[ ! -d "${NSD_CONTROL_DIR}" ]]; then
+  echo "[E] ${NSD_CONTROL_DIR} not found, exiting ..."
+  exit 1
+fi
+
+exec /usr/sbin/nsd-control ${@}

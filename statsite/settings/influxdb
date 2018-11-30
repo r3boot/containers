@@ -1,5 +1,0 @@
-host=influxdb.service.local
-port=8086
-database=metrics
-username=admin
-password=admin

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+exec docker run --rm -it \
+    --name birdc \
+    -v /run/bird:/run/bird \
+    as65342/birdc:{{ version }} ${@}

@@ -1,4 +1,0 @@
-type=RefreshandPersist
-bindmethod=simple
-binddn="uid=replicate,ou=services,dc=as65342,dc=net"
-credentials="splash=flint4abort-there"

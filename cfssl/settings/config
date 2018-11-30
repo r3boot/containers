@@ -1,7 +1,0 @@
-ocsp_url=http://ocsp.as65342.net:8888
-crl_url=http://pki.as65342.net:8888/crl
-default_expiry=26280h
-ocsp_expiry=96h
-intermediary_expiry=26280h
-server_expiry=8760h
-client_expiry=8760h

@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenVPN Robust And Highly Flexible Tunneling Application On %I (running inside docker)
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o root -g openvpn -m 0750 /var/run/openvpn
+ExecStartPre=/bin/install -d -o root -g openvpn -m 0750 /var/run/openvpn/%I
+ExecStart=/bin/docker run --rm \
+  --name openvpn-%I \
+  --cap-add NET_ADMIN \
+  --network host \
+  -v /etc/openvpn/%I:/etc/openvpn \
+  -v /var/run/openvpn/%I:/var/run/openvpn \
+  -v /var/log/openvpn/%I:/var/log/openvpn \
+  -v /dev/net:/dev/net \
+  as65342/openvpn:{{ version }}
+
+[Install]
+WantedBy=multi-user.target

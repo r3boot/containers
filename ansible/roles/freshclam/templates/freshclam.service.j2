@@ -1,0 +1,17 @@
+[Unit]
+Description=Freshclam running inide of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o root -g clamav -m 1770 /run/clamav
+ExecStart=/bin/docker run --rm \
+  --name freshclam \
+  -v /etc/clamav:/etc/clamav \
+  -v /var/lib/clamav:/var/lib/clamav \
+  -v /var/log/clamav:/var/log/clamav \
+  -v /run/clamav:/run/clamav \
+  as65342/freshclam:{{ version }} -d
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+- name: restart clientvpn
+  systemd:
+    name: openvpn@clientvpn
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - openvpn
+
+- name: restart routervpn
+  systemd:
+    name: openvpn@routervpn
+    state: restarted
+    daemon_reload: yes
+  tags:
+  - openvpn

@@ -1,9 +1,0 @@
-[template]
-src = "nsd.conf.tmpl"
-dest = "/etc/nsd/nsd.conf"
-keys = [ "/nsd" ]
-owner = "root"
-group = "nsd"
-mode = "0640"
-check_cmd = "/usr/sbin/nsd-checkconf {{.src}}"
-reload_cmd = "/usr/sbin/reload_nsd"

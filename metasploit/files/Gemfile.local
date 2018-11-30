@@ -1,8 +1,0 @@
-msf_gemfile = File.join(File.dirname(__FILE__), 'Gemfile')
-if File.readable?(msf_gemfile)
-  instance_eval(File.read(msf_gemfile))
-end
-
-group :local do
-  gem 'bigdecimal', '~> 1.2.7'
-end

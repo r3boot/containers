@@ -1,6 +1,0 @@
-port=647
-max-response-delay=30
-max-unacked-updates=10
-load_balance_max_seconds=3
-mclt=1800
-split=128

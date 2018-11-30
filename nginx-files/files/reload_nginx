@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [[ -f /var/run/nginx.pid ]]; then
-  kill -HUP $(cat /var/run/nginx.pid)
-fi
-
-exit 0

@@ -1,8 +1,0 @@
-cn=AS65342 OCSP Certificate
-key_algo=ecdsa
-key_size=256
-req_C=NL
-req_ST=Utrecht
-req_L=Amersfoort
-req_O=AS65342 Network
-req_OU=OCSP Authority

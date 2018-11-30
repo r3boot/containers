@@ -1,0 +1,14 @@
+- name: prefetch container
+  shell: docker pull as65342/birdc:{{ version }}
+  tags:
+    - birdc
+
+- name: install wrapper script
+  template:
+    src: birdc.j2
+    dest: /usr/local/bin/birdc
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - birdc

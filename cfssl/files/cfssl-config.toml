@@ -1,7 +1,0 @@
-[template]
-src = "cfssl-config.json.tmpl"
-dest = "/var/rkt/cfssl/cfssl-config.json"
-keys = [ "/cfssl" ]
-owner = "root"
-group = "root"
-mode = "0640"

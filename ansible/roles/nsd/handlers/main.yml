@@ -1,0 +1,7 @@
+- name: restart nsd
+  systemd:
+    name: nsd
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - nsd

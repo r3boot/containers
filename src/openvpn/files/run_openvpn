@@ -1,0 +1,16 @@
+#!/bin/sh
+
+CFGFILE="$(ls /etc/openvpn/*.conf | sort | head -1)"
+if [[ -z "${CFGFILE}" ]]; then
+  echo '[E] No configuration file found, exiting ...'
+  exit 1
+fi
+
+RUNDIR='/var/run/openvpn'
+LOGDIR='/var/log/openvpn'
+PIDFILE="${RUNDIR}/openvpn.pid"
+
+install -d -o root -g openvpn -m 0750 ${LOGDIR}
+install -d -o root -g openvpn -m 0750 ${RUNDIR}
+
+exec /usr/sbin/openvpn --config ${CFGFILE} --writepid ${PIDFILE}

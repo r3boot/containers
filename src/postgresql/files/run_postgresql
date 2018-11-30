@@ -1,0 +1,22 @@
+#!/bin/sh
+
+PGDATA='/var/lib/postgresql'
+PGLOG='/var/lib/postgresql/postmaster.log'
+PGUSER='postgres'
+PGGROUP='postgres'
+
+# Initialize the database first
+if [[ ! -d "${PGDATA}/data" ]]; then
+  mkdir -p "${PGDATA}/data"
+  chown -Rf ${PGUSER}:${PGGROUP} ${PGDATA}
+  chmod 0700 ${PGDATA}
+  su - ${PGUSER} -c "initdb --pgdata \"${PGDATA}/data\""
+
+  # Update pg_hba.conf so containers can connect
+  echo -e "host\tall\tall\tsamenet\t\t\t\tmd5" >> ${PGDATA}/data/pg_hba.conf
+fi
+
+# Start up postgresql
+mkdir -p /run/postgresql
+chown -R ${PGUSER}:${PGUSER} /run/postgresql
+su - ${PGUSER} -c "exec postgres -D \"${PGDATA}/data\" -i -h 0.0.0.0"

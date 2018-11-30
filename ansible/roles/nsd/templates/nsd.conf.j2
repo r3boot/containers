@@ -1,0 +1,144 @@
+server:
+  server-count: 2
+  ip-address: 10.42.14.63
+  ip-transparent: no
+  debug-mode: no
+  do-ip4: yes
+  do-ip6: yes
+  port: 53
+  verbosity: 99
+  username: nsd
+  chroot: "/srv/nsd"
+  zonesdir: "/srv/nsd/zones"
+  zonelistfile: "/srv/nsd/var/zone.list"
+  database: ""
+  logfile: "/srv/nsd/log/nsd.log"
+  pidfile: "/srv/nsd/run/nsd.pid"
+  xfrdfile: "/srv/nsd/var/xfrd.state"
+  xfrdir: "/srv/nsd/tmp"
+  hide-version: yes
+  identity: "794888c5f30cee4b"
+  nsid: "d2ff0b23b3cfcf95"
+  tcp-count: 100
+  tcp-query-count: 0
+  tcp-timeout: 120
+  ipv4-edns-size: 4096
+  ipv6-edns-size: 4096
+  statistics: 3600
+  xfrd-reload-timeout: 1
+  log-time-ascii: yes
+  round-robin: yes
+  zonefiles-check: yes
+  zonefiles-write: 3600
+  rrl-size: 1000000
+  rrl-ratelimit: 200
+  rrl-slip: 2
+  rrl-ipv4-prefix-length: 24
+  rrl-ipv6-prefix-length: 64
+  rrl-whitelist-ratelimit: 2000
+
+remote-control:
+  control-enable: yes
+  control-interface: 127.0.0.1
+  control-interface: ::1
+  control-port: 8952
+  server-key-file: "/etc/nsd/control/nsd_server.key"
+  server-cert-file: "/etc/nsd/control/nsd_server.pem"
+  control-key-file: "/etc/nsd/control/nsd_control.key"
+  control-cert-file: "/etc/nsd/control/nsd_control.pem"
+
+key:
+  name: "master-slave"
+  algorithm: hmac-sha256
+  secret: gNPsCgwR8cBzm1ZhIupfgxTIjmMdBTbTOrLF2SVtFac=
+
+zone:
+  name: "as65342.net"
+  zonefile: db.as65342.net
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "dinonet.eu"
+  zonefile: db.dinonet.eu
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "djtt.nl"
+  zonefile: db.djtt.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "gazebo.nu"
+  zonefile: db.gazebo.nu
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "hackon.nl"
+  zonefile: db.hackon.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "justsmile.nl"
+  zonefile: db.justsmile.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "melisje.nl"
+  zonefile: db.melisje.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "r3blog.nl"
+  zonefile: db.r3blog.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "spiderwebz.nl"
+  zonefile: db.spiderwebz.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "pleuns-creaties.nl"
+  zonefile: db.pleuns-creaties.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "pleunscreaties.nl"
+  zonefile: db.pleunscreaties.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "pleuns-producties.nl"
+  zonefile: db.pleuns-producties.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave
+
+zone:
+  name: "pleunsproducties.nl"
+  zonefile: db.pleunsproducties.nl
+  outgoing-interface: 2001:7b8:607:7::53
+  notify: 2001:7b8:607:b::53 master-slave
+  provide-xfr: 2001:7b8:607:b::53 master-slave

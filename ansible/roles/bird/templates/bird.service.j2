@@ -1,0 +1,17 @@
+[Unit]
+Description=Bird running inide of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o root -g bird -m 0750 /run/bird
+ExecStart=/bin/docker run --rm \
+  --name bird \
+  --cap-add ALL \
+  --network host \
+  -v /etc/bird.conf:/etc/bird.conf \
+  -v /run/bird:/run/bird \
+  as65342/bird:{{ version }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# Add erlang to the path
-PATH="${PATH}:/opt/erlang/bin"
-export PATH
-
-# Start rabbitmq in the foreground
-exec /opt/rabbitmq/sbin/rabbitmq-server

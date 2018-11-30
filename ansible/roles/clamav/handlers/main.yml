@@ -1,0 +1,7 @@
+- name: restart service
+  systemd:
+    name: clamd
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - clamav

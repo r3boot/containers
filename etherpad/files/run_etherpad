@@ -1,3 +1,0 @@
-#!/bin/sh
-
-su - etherpad -c /opt/etherpad-lite-1.6.1/bin/run.sh ${@}

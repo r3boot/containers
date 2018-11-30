@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if [[ -z "${POSTGRESQL_HOST}" ]]; then
-  echo "[E] POSTGRESQL_HOST not set, cannot connect"
-  exit 1
-fi
-
-exec /usr/bin/psql -h ${POSTGRESQL_HOST} -d template1 -U dbadmin

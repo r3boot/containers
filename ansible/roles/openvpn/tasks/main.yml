@@ -1,0 +1,67 @@
+- name: prefetch container
+  shell: docker pull as65342/openvpn:{{ version }}
+  tags:
+    - openvpn
+
+- name: add group
+  group:
+    name: openvpn
+    gid: "{{ uidgid }}"
+  tags:
+  - openvpn
+
+- name: add user
+  user:
+    name: openvpn
+    uid: "{{ uidgid }}"
+    group: openvpn
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: OpenVPN system account
+  tags:
+  - openvpn
+
+# TODO: add statements for configuration
+
+- name: create log directories
+  file:
+    dest: /var/log/{{ item }}
+    owner: root
+    group: openvpn
+    mode: 0750
+  with_items:
+    - openvpn
+    - openvpn/clientvpn
+    - openvpn/routervpn
+  tags:
+    - openvpn
+
+- name: install unit file
+  template:
+    src: openvpn.service.j2
+    dest: /etc/systemd/system/openvpn@.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart clientvpn
+    - restart routervpn
+  tags:
+    - openvpn
+
+- name: enable clientvpn
+  systemd:
+    name: openvpn@clientvpn
+    enabled: yes
+    state: started
+  tags:
+    - openvpn
+
+- name: enable routervpn
+  systemd:
+    name: openvpn@routervpn
+    enabled: yes
+    state: started
+  tags:
+    - openvpn

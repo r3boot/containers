@@ -1,0 +1,36 @@
+- name: prefetch container
+  shell: docker pull as65342/freshclam:{{ version }}
+  tags:
+    - freshclam
+
+- name: install configuration file
+  template:
+    src: freshclam.conf.j2
+    dest: /etc/clamav/freshclam.conf
+    owner: root
+    group: clamav
+    mode: 0750
+  notify:
+  - restart freshclam
+  tags:
+    - freshclam
+
+- name: install unit file
+  template:
+    src: freshclam.service.j2
+    dest: /etc/systemd/system/freshclam.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart freshclam
+  tags:
+    - freshclam
+
+- name: enable service
+  systemd:
+    name: freshclam
+    enabled: yes
+    state: started
+  tags:
+    - freshclam

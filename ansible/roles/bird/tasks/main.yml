@@ -1,0 +1,55 @@
+- name: prefetch container
+  shell: docker pull as65342/bird:{{ version }}
+  tags:
+    - bird
+
+- name: add group
+  group:
+    name: bird
+    gid: "{{ uidgid }}"
+  tags:
+  - bird
+
+- name: add user
+  user:
+    name: bird
+    uid: "{{ uidgid }}"
+    group: bird
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Bird system account
+  tags:
+    - bird
+
+- name: install configuration file
+  template:
+    src: bird.conf.j2
+    dest: /etc/bird.conf
+    owner: root
+    group: bird
+    mode: 0640
+  notify:
+  - restart service
+  tags:
+    - bird
+
+- name: install unit file
+  template:
+    src: bird.service.j2
+    dest: /etc/systemd/system/bird.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart service
+  tags:
+    - bird
+
+- name: enable service
+  systemd:
+    name: bird
+    enabled: yes
+    state: started
+  tags:
+    - bird

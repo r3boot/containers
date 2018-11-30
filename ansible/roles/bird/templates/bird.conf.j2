@@ -1,0 +1,154 @@
+router id 10.42.0.1;
+
+filter ipv4_export_to_kernel {
+  if net ~ [
+    10.42.0.0/19,
+    10.42.4.0/22{22,32},
+    10.42.0.1/32
+  ] then reject "local prefix";
+
+  if net ~ [
+    0.0.0.0/0,
+    0.0.0.0/1,
+    128.0.0.0/1
+  ] then reject "default route";
+
+  accept "ok";
+}
+
+filter ipv6_export_to_kernel {
+  if net ~ [
+    2001:7b8:607::/48,
+    2001:7b8:607:4::/62{62,128},
+    2001:7b8:607::1/128
+  ] then reject "local prefix";
+
+  if net ~ [
+    ::/0,
+    ::/1,
+    8000::/1
+  ] then reject "default route";
+
+  accept "ok";
+}
+
+filter ipv4_loopback_prefixes_only {
+  if net ~ [ 10.42.0.0/24{32,32} ] then accept "ok";
+  reject "no loopback prefix";
+};
+
+filter ipv6_loopback_prefixes_only {
+  if net ~ [ 2001:7b8:607::/64{128,128} ] then accept "ok";
+  reject "no loopback prefix";
+}
+
+protocol static static_ipv4_prefixes {
+  ipv4;
+  route 0.0.0.0/0 via 10.42.14.1;
+  route 10.42.0.0/19 reject;
+  route 10.42.4.0/22 reject;
+}
+
+protocol static static_ipv6_prefixes {
+  ipv6;
+  route 2001:7b8:607::/48 reject;
+  route 2a02:898:62:1590::/60 reject;
+  route 2a02:58:5:4a00::/56 reject;
+  route 2001:7b8:607:4::/62 reject;
+}
+
+protocol kernel ipv4_kernel_rt {
+  persist;
+  scan time 5;
+  graceful restart on;
+  ipv4 {
+    export filter ipv4_export_to_kernel;
+  };
+}
+
+protocol kernel ipv6_kernel_rt {
+  persist;
+  scan time 5;
+  graceful restart on;
+  ipv6 {
+    export filter ipv6_export_to_kernel;
+  };
+}
+
+protocol device devpoll {
+  scan time 1;
+}
+
+protocol direct devices {
+  ipv4;
+  ipv6;
+}
+
+protocol bfd peer_detect {
+  interface "neutralino", "tachikoma", "routervpn" {
+    interval 250ms;
+     multiplier 8;
+  };
+}
+
+protocol ospf v2 as65342_ipv4_igp {
+  rfc1583compat yes;
+  ipv4 {
+    import filter ipv4_loopback_prefixes_only;
+    export filter ipv4_loopback_prefixes_only;
+  };
+  area 0.0.0.0 {
+    interface "dummy0" {
+      stub on;
+    };
+    interface "neutralino" {
+      wait 3;
+      hello 5;
+      retransmit 2;
+      dead count 3;
+      bfd on;
+      check link on;
+    };
+    interface "tachikoma", "routervpn" {
+      wait 3;
+      hello 5;
+      retransmit 2;
+      dead count 3;
+      bfd on;
+      check link on;
+      authentication cryptographic;
+      password "fzFAhvXm3Ky4W";
+    };
+    interface "br_lan" {
+      wait 3;
+      hello 5;
+      retransmit 2;
+      dead count 3;
+      bfd on;
+      check link on;
+      authentication cryptographic;
+      password "eNp49DCDb8A5g";
+    };
+  };
+}
+
+protocol ospf v3 as65342_ipv6_igp {
+  rfc1583compat yes;
+  ipv6 {
+    import filter ipv6_loopback_prefixes_only;
+    export filter ipv6_loopback_prefixes_only;
+  };
+  area 0.0.0.0 {
+    interface "dummy0" {
+      stub on;
+    };
+    interface "neutralino", "tachikoma", "routervpn", "br_lan" {
+      wait 3;
+      hello 5;
+      retransmit 2;
+      dead count 3;
+      bfd on;
+      check link on;
+    };
+  };
+}

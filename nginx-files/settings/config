@@ -1,7 +1,0 @@
-worker_processes=2
-worker_connections=1024
-sendfile=on
-tcp_nodelay=on
-keepalive_timeout=65
-gzip=off
-server_name=files.as65342.net

@@ -1,9 +1,0 @@
-[template]
-src = "nginx.conf.tmpl"
-dest = "/etc/nginx/nginx.conf"
-keys = [ "/nginx-files" ]
-owner = "root"
-group = "nginx"
-mode = "0640"
-check_cmd = "/usr/sbin/nginx -t -c {{.src}}"
-reload_cmd = "/usr/sbin/reload_nginx"

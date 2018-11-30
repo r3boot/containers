@@ -1,0 +1,2 @@
+openvpn ALL=(ALL) NOPASSWD: /etc/openvpn/up.sh
+openvpn ALL=(ALL) NOPASSWD: /etc/openvpn/down.sh

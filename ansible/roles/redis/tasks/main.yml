@@ -1,0 +1,64 @@
+- name: prefetch container
+  shell: docker pull as65342/redis:{{ version }}
+  tags:
+    - redis
+
+- name: add group
+  group:
+    name: redis
+    gid: "{{ uidgid }}"
+  tags:
+  - redis
+
+- name: add user
+  user:
+    name: redis
+    uid: "{{ uidgid }}"
+    group: redis
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Redis system account
+  tags:
+    - redis
+
+- name: install configuration file
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis.conf
+    owner: root
+    group: redis
+    mode: 0640
+  notify:
+  - restart redis
+  tags:
+    - redis
+
+- name: create database directory
+  file:
+    dest: /var/lib/redis
+    owner: root
+    group: redis
+    mode: 1770
+  tags:
+    - redis
+
+- name: install unit file
+  template:
+    src: redis.service.j2
+    dest: /etc/systemd/system/redis.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart redis
+  tags:
+    - redis
+
+- name: enable service
+  systemd:
+    name: redis
+    enabled: yes
+    state: started
+  tags:
+    - redis

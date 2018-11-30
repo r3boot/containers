@@ -1,0 +1,10 @@
+#!/bin/sh
+
+RULES_VERSION='3.004002'
+RULES_DIR="/var/lib/spamassassin/${RULES_VERSION}"
+
+if [[ ! -d "${RULES_DIR}" ]]; then
+  /usr/bin/sa-update -v --refreshmirrors --allowplugins
+fi
+
+exec /usr/sbin/spamd -u spamd -g spamd -s /dev/null --socketpath /run/spamd.sock --socketowner spamd --socketgroup mail --socketmode 0440

@@ -1,0 +1,17 @@
+[Unit]
+Description=NSD running inide of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name nsd \
+  --network host \
+  -v /etc/nsd/nsd.conf:/etc/nsd/nsd.conf \
+  -v /etc/nsd/control:/etc/nsd/control \
+  -v /etc/nsd/zones:/srv/nsd/zones \
+  -v /var/log/nsd:/srv/nsd/log \
+  as65342/nsd:{{ version }}
+
+[Install]
+WantedBy=multi-user.target

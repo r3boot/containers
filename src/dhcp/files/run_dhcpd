@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -x
+
+DOMAIN_NAME="$(echo ${DHCPD_DOMAIN_NAME} | tr -d '\n')"
+DOMAIN_NAME_SERVERS="$(echo ${DHCPD_DOMAIN_NAME_SERVERS} | tr -d '\n')"
+DHCP6_NAME_SERVERS="$(echo ${DHCPD_DHCP6_NAME_SERVERS} | tr -d '\n')"
+NEXT_SERVER="$(echo ${DHCPD_NEXT_SERVER} | tr -d '\n')"
+FILENAME="$(echo ${DHCPD_FILENAME} | tr -d '\n')"
+DEFAULT_LEASE_TIME="$(echo ${DHCPD_DEFAULT_LEASE_TIME} | tr -d '\n')"
+MAX_LEASE_TIME="$(echo ${DHCPD_MAX_LEASE_TIME} | tr -d '\n')"
+FAILOVER_ROLE="$(echo ${DHCPD_FAILOVER_ROLE} | tr -d '\n')"
+
+MY_ADDR="$(ip addr show dev eth0 | grep inet\ | awk '{print $2}' | cut -d/ -f1)"
+
+if [[ "${FAILOVER_ROLE}" == "primary" ]]; then
+  PRIMARY_SETTINGS="$(echo -e "mclt 1800;\nsplit 128;\n")"
+fi
+
+cat /etc/dhcp/dhcpd.conf.tmpl | sed  \
+  -e "s,%DHCPD_DOMAIN_NAME%,${DOMAIN_NAME},g" \
+  -e "s,%DHCPD_DOMAIN_NAME_SERVERS%,${DOMAIN_NAME_SERVERS},g" \
+  -e "s,%DHCPD_DHCP6_NAME_SERVERS%,${DHCP6_NAME_SERVERS},g" \
+  -e "s,%DHCPD_NEXT_SERVER%,${NEXT_SERVER},g" \
+  -e "s,%DHCPD_FILENAME%,${FILENAME},g" \
+  -e "s,%DHCPD_DEFAULT_LEASE_TIME%,${DEFAULT_LEASE_TIME},g" \
+  -e "s,%DHCPD_MAX_LEASE_TIME%,${MAX_LEASE_TIME},g" \
+  -e "s,%DHCPD_FAILOVER_ROLE%,${FAILOVER_ROLE},g" \
+  -e "s,%DHCPD_MY_ADDR%,${MY_ADDR},g" \
+  -e "s,%DHCPD_PEER_ADDR%,${DHCPD_PEER_B_SERVICE_HOST},g" \
+  > /etc/dhcpd.conf
+
+if [[ "${FAILOVER_ROLE}" == "primary" ]]; then
+  echo "mclt 1800;" >> /etc/dhcpd.conf
+  echo "split 128;" >> /etc/dhcpd.conf
+fi
+echo "}" >> /etc/dhcpd.conf
+
+echo "subnet ${MY_ADDR} netmask 255.255.255.255 { }" >> /etc/dhcpd.conf
+echo ${DHCPD_SUBNETS} >> /etc/dhcpd.conf
+
+cat /etc/dhcpd.conf
+
+export
+
+exec /usr/sbin/dhcpd -f -p 67 eth0

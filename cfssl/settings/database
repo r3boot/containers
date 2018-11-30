@@ -1,5 +1,0 @@
-driver=postgres
-host=postgresql.service.as65342
-user=cfssl
-password=r8cPwON24LEWM
-dbname=cfssl

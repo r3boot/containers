@@ -1,0 +1,21 @@
+#!/bin/sh
+
+NSD_CONTROL_DIR='/etc/nsd/control'
+
+# Generate nsd-control keys if needed
+if [[ ! -f "${NSD_CONTROL_DIR}/nsd_control.key" ]]; then
+  nsd-control-setup -d "${NSD_CONTROL_DIR}"
+fi
+
+install -d -o root -g nsd -m 0750 /srv/nsd
+install -d -o root -g nsd -m 1770 /srv/nsd/log
+install -d -o root -g nsd -m 1770 /srv/nsd/tmp
+install -d -o root -g nsd -m 1770 /srv/nsd/var
+install -d -o root -g nsd -m 1770 /srv/nsd/zones
+
+nsd-checkconf /etc/nsd/nsd.conf || (
+  echo "Configuration check failed, exiting ..."
+  exit 1
+)
+
+exec /usr/sbin/nsd -d

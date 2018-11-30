@@ -1,0 +1,14 @@
+- name: prefetch container
+  shell: docker pull as65342/redis-cli:{{ version }}
+  tags:
+    - redis-cli
+
+- name: install wrapper script
+  template:
+    src: redis-cli.j2
+    dest: /usr/local/bin/redis-cli
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - redis-cli

@@ -1,0 +1,14 @@
+- name: prefetch container
+  shell: docker pull as65342/nsd-control:{{ version }}
+  tags:
+    - nsd-control
+
+- name: install wrapper script
+  template:
+    src: nsd-control.j2
+    dest: /usr/local/bin/nsd-control
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - nsd-control

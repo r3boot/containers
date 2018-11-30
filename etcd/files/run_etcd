@@ -1,7 +1,0 @@
-#!/bin/sh
-
-export HOSTNAME
-
-(sleep 3 ; /usr/bin/etcd-metrics-to-influxdb) &
-
-exec /usr/sbin/etcd ${@}

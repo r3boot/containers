@@ -1,4 +1,4 @@
-*/build
 *.swp
-scripts/etcdctl
-metrics-agents/src/build
+*.pyc
+.idea
+ansible/roles/*/vars/*

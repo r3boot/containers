@@ -1,0 +1,20 @@
+[Unit]
+Description=Wordpress instance for r3blog.nl running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o wp_r3blog -g nginx -m 1770 /run/wordpress/wp_r3blog
+ExecStart=/bin/docker run --rm \
+  --name wp_r3blog \
+  --network host \
+  -v /etc/php7/php.ini:/etc/php7/php.ini \
+  -v /etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf \
+  -v /etc/php7/php-fpm.d/wp_r3blog.conf:/etc/php7/php-fpm.d/www.conf \
+  -v /var/www/r3blog:/siteroot \
+  -v /run/wordpress/wp_r3blog:/run \
+  as65342/wp_r3blog:{{ version }}
+ExecStop=/bin/docker stop wp_r3blog
+
+[Install]
+WantedBy=multi-user.target

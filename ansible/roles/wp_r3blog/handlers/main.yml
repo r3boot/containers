@@ -1,0 +1,7 @@
+- name: restart wp_r3blog
+  systemd:
+    name: wp_r3blog
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - wp_r3blog

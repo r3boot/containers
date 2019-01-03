@@ -46,6 +46,7 @@
     - exim
     - php7-fpm
     - vhost_r3blog
+    - wp_r3blog
     - vhost_spiderwebz
     - wp_spiderwebz
     - nginx

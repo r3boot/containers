@@ -1,0 +1,64 @@
+- name: prefetch container
+  shell: docker pull as65342/wp_r3blog:{{ version }}
+  tags:
+  - wp_r3blog
+
+- name: add group
+  group:
+    name: wp_r3blog
+    gid: "{{ uidgid }}"
+  tags:
+  - wp_r3blog
+
+- name: add user
+  user:
+    name: wp_r3blog
+    uid: "{{ uidgid }}"
+    group: wp_r3blog
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: PHP FPM system account
+  tags:
+  - wp_r3blog
+
+- name: install php-fpm pool file
+  copy:
+    src: wp_r3blog.conf
+    dest: /etc/php7/php-fpm.d/wp_r3blog.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - wp_r3blog
+
+- name: install unit file
+  template:
+    src: wp_r3blog.service.j2
+    dest: /etc/systemd/system/wp_r3blog.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart wp_r3blog
+  tags:
+    - wp_r3blog
+
+- name: enable service
+  systemd:
+    name: wp_r3blog
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+    - wp_r3blog
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/wp_r3blog.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - wp_r3blog

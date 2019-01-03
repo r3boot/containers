@@ -1,5 +1,8 @@
 #!/bin/sh
 
 install -d -o root -g nginx -m 1770 /run/nginx
+install -d -o root -g nginx -m 1770 /var/tmp/nginx
+install -d -o root -g nginx -m 1770 /var/tmp/nginx/fastcgi
+install -d -o root -g nginx -m 1770 /var/tmp/nginx/client_body
 
 exec /usr/sbin/nginx ${@}

@@ -10,7 +10,7 @@ ExecStart=/bin/docker run --rm \
   --network host \
   -v /etc/php7/php.ini:/etc/php7/php.ini \
   -v /etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf \
-  -v /etc/php7/php-fpm.d/wp_spiderwebz.conf:/etc/php7/php-fpm.d/wp_spiderwebz.conf \
+  -v /etc/php7/php-fpm.d/wp_spiderwebz.conf:/etc/php7/php-fpm.d/www.conf \
   -v /var/www/spiderwebz:/siteroot \
   -v /run/wordpress/wp_spiderwebz:/run \
   as65342/wp_spiderwebz:{{ version }}

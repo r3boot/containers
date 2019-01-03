@@ -1,4 +1,10 @@
 *.swp
 *.pyc
 .idea
+config.yaml
+ansible/*.retry
+ansible/secrets.json
 ansible/roles/*/vars/*
+src/cfssl/go
+src/*/*-build
+src/*/build

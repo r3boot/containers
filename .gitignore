@@ -1,7 +1,6 @@
 *.swp
 *.pyc
 .idea
-*.tar.xz
 config.yaml
 ansible/*.retry
 ansible/secrets.json

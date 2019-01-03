@@ -1,0 +1,36 @@
+- name: create vhost directories
+  file:
+    dest: "/var/www/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - r3blog
+  - r3blog/apps
+  - r3blog/logs
+  tags:
+  - vhost_r3blog
+
+- name: install nginx configurations
+  copy:
+    src: "{{ item }}.conf"
+    dest: "/etc/nginx/sites-available/{{ item }}.conf"
+    owner: root
+    group: nginx
+    mode: 0640
+  with_items:
+    - r3blog.nl
+  tags:
+    - vhost_r3blog
+
+- name: enable nginx vhosts
+  file:
+    src: "/etc/nginx/sites-available/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
+    state: link
+  with_items:
+    - r3blog.nl
+  notify: restart wp_r3blog
+  tags:
+    - vhost_r3blog

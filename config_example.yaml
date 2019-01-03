@@ -1,0 +1,8 @@
+containers:
+  - name: container_name
+  - name: other_command_in_container
+    childOf: container_name
+
+docker:
+  username: "your docker hub username"
+  password: "your docker hub password"

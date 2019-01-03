@@ -1,9 +1,0 @@
-- name: deploy all containers for ran.as65342.net
-  hosts:
-    - ran
-  user: r3boot
-  become: true
-  roles:
-    - bird
-    - birdc
-    - openvpn

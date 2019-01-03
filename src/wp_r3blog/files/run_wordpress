@@ -1,0 +1,18 @@
+#!/bin/sh
+
+WP_DIR='/siteroot/apps/wordpress'
+TMP_DIR='/tmp'
+
+RELEASES_URI='https://wordpress.org/download/releases/'
+
+TARBALL_URI="$(wget -qO- ${RELEASES_URI} \
+    | grep 'href=' | grep 'tar.gz' | cut -d\" -f2 | head -1)"
+
+if [[ ! -d "${WP_DIR}/wp-includes" ]]; then
+    cd ${TMP_DIR}
+    wget ${TARBALL_URI}
+    tar xvzf wordpress-*.tar.gz -C /siteroot/apps
+    chown -R wordpress:wordpress /siteroot/apps/wordpress
+fi
+
+exec /usr/sbin/php-fpm7 -F

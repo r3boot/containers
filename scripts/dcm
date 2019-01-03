@@ -1,0 +1,419 @@
+#!/usr/bin/env python
+
+import argparse
+import getpass
+import json
+import os
+import re
+import requests
+import subprocess
+import sys
+import yaml
+
+__description__ = "Docker Container Manager"
+
+__usage__ = """{0} [-f cfgfile] [operation]
+
+Where operation is one of:
+update      Update the locally cached package lists
+
+""".format(os.path.basename(sys.argv[0]))
+
+class BaseClass:
+
+    def info(self, msg):
+        print("[+] {0}".format(msg))
+
+    def warning(self, msg):
+        print("[W] {0}".format(msg))
+
+    def error(self, msg):
+        print("[E] {0}".format(msg))
+        sys.exit(1)
+
+
+class AlpineLinuxRepositories(BaseClass):
+    _baseUrl = 'http://dl-cdn.alpinelinux.org/alpine'
+    _stableMain = '{0}/latest-stable/main/x86_64'.format(_baseUrl)
+    _edgeMain = '{0}/edge/main/x86_64'.format(_baseUrl)
+    _edgeTesting = '{0}/edge/testing/x86_64'.format(_baseUrl)
+
+    _rePackageVersion = re.compile('(.*)-([0-9.]+.*-r[0-9]+).apk')
+
+    _repo  = {
+        "stable": {
+            "main": {}
+        },
+        "edge": {
+            "main": {},
+            "testing": {},
+        }
+    }
+
+    def __init__(self):
+        super(AlpineLinuxRepositories, self).__init__()
+
+    def update_lists(self):
+        self._repo["stable"]["main"] = self.fetch_updates(self._stableMain)
+        self._repo["edge"]["main"] = self.fetch_updates(self._edgeMain)
+        self._repo["edge"]["testing"] = self.fetch_updates(self._edgeTesting)
+
+    def fetch_updates(self, repo):
+        packages = {}
+        self.info("Fetching {0}".format(repo))
+        resp = requests.get(repo)
+        if resp.status_code != 200:
+            self.error("GET of {0} returned {1}".format(repo, resp.status_code))
+
+        for rawline in resp.text.split():
+            if 'apk' not in rawline:
+                continue
+            package_fullname = rawline.split('"')[1]
+            match = self._rePackageVersion.search(package_fullname)
+            if not match:
+                continue
+            name = match.group(1)
+            version = match.group(2)
+            packages[name] = version
+        return packages
+
+    def get_latest_version(self, name):
+        if name in self._repo["edge"]["testing"]:
+            return "edge", self._repo["edge"]["testing"][name]
+        elif name in self._repo["edge"]["main"]:
+            return "edge", self._repo["edge"]["main"][name]
+        elif name in self._repo["stable"]["main"]:
+            return "stable", self._repo["stable"]["main"][name]
+
+        self.warning("No package found for {0}".format(name))
+        return None, ""
+
+
+class DockerHubRepository(BaseClass):
+    _baseUri = "https://hub.docker.com"
+    _username = ""
+    _token = ""
+    _repositories = {}
+
+    def __init__(self, username, password):
+        super(DockerHubRepository, self).__init__()
+        self._username = username
+        self._token = self.get_token(username, password)
+
+    def update_tags(self):
+        for repository in self.get_repositories():
+            self._repositories[repository] = self.get_tags(repository)
+
+    def get_token(self, username, password):
+        url = "{0}/v2/users/login/".format(self._baseUri)
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "username": "{0}".format(username),
+            "password": "{0}".format(password)
+        }
+
+        self.info("Fetching docker hub token")
+        resp = requests.post(url, headers=headers, data=json.dumps(payload))
+        if resp.status_code != 200:
+            self.error("Failed to login: {0}".format(resp.status_code))
+
+        response = resp.json()
+        if "token" not in response:
+            self.error("No token found in login response")
+
+        return response["token"]
+
+    def exit_if_no_token(self):
+        if self._token == "":
+            self.error("Token cannot be empty")
+
+    def get_repositories(self):
+        self.exit_if_no_token()
+
+        repositories = []
+
+        url = "{0}/v2/repositories/{1}/?page_size=1000".format(
+            self._baseUri,
+            self._username
+        )
+        headers = {"Authorization": "JWT {0}".format(self._token)}
+
+        self.info("Fetching docker hub repositories")
+        resp = requests.get(url, headers=headers)
+        if resp.status_code != 200:
+            self.error("Failed to fetch {0}: {1}".format(url, resp.status_code))
+
+        response = resp.json()
+
+        for repository in response["results"]:
+            if repository["repository_type"] != "image":
+                continue
+            repositories.append(repository["name"])
+
+        return repositories
+
+    def get_tags(self, repository):
+        self.exit_if_no_token()
+
+        tags = []
+
+        url = "{0}/v2/repositories/{1}/{2}/tags/?page_size=1000".format(
+            self._baseUri,
+            self._username,
+            repository
+        )
+        headers = {"Authorization": "JWT {0}".format(self._token)}
+
+        self.info("Fetching tags for {0}".format(repository))
+        resp = requests.get(url, headers=headers)
+        if resp.status_code != 200:
+            self.error("Failed to fetch {0}: {1}".format(url, resp.status_code))
+
+        response = resp.json()
+
+        for tag in response["results"]:
+            if tag["name"] == "latest":
+                continue
+            tags.append(tag["name"])
+
+        return tags
+
+    def get_latest_tag(self, name):
+        if name not in self._repositories:
+            self.warning("No docker tags found for {0}".format(name))
+            return ""
+
+        latest_tag = ""
+        for tag in self._repositories[name]:
+            if tag > latest_tag:
+                latest_tag = tag
+
+        return latest_tag
+
+
+class ContainerBuilder(BaseClass):
+    _container_dir = ""
+
+    def __init__(self):
+        super(ContainerBuilder, self).__init__()
+        top_dir = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
+        self._container_dir = "{0}/src".format(top_dir)
+        if not os.path.exists(self._container_dir):
+            self.error("No containers found under {0}".format(
+                self._container_dir
+            ))
+
+    def build(self, pkgname, version):
+        build_dir = "{0}/{1}".format(self._container_dir, pkgname)
+        if not os.path.exists(build_dir):
+            # TODO: create skeleton dir
+            self.error("No container build directory found for {0}".format(
+                pkgname
+            ))
+        os.chdir(build_dir)
+        cmd = ["make", "clean", "all"]
+        try:
+            subprocess.run(cmd, shell=True, env={"VERSION": version}, check=True)
+        except:
+            self.error("Failed to build {0}".format(pkgname))
+
+
+class AnsibleDeployment(BaseClass):
+    _ansible_dir = ""
+    _facts = {}
+
+    def __init__(self):
+        super(AnsibleDeployment, self).__init__()
+        top_dir = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
+        self._ansible_dir = "{0}/ansible".format(top_dir)
+
+    def deploy(self, tags=[]):
+        cmd = [
+            "ansible-playbook",
+            "site.yml",
+            "-i", "{0}/hosts".format(self._ansible_dir),
+            "--extra-vars", "@secrets.json",
+            "--ask-vault-pass",
+        ]
+
+        if len(tags) > 0:
+            cmd.append("--tags")
+            cmd.append(','.join(tags))
+
+        try:
+            os.chdir(self._ansible_dir)
+            subprocess.run(cmd, check=True)
+        except:
+            self.error("Failed to deploy containers!")
+
+    def set_version(self, role, version):
+        role_dir = "{0}/roles/{1}".format(self._ansible_dir, role)
+        vars_dir = "{0}/vars".format(role_dir)
+        vars_file = "{0}/main.yml".format(vars_dir)
+
+        if not os.path.exists(role_dir):
+            self.warning("No role found for {0}".format(role))
+            return
+
+        if not os.path.exists(vars_dir):
+            os.mkdir(vars_dir, mode=0o755)
+
+        self.info("Setting ansible version of {0} to {1}".format(role, version))
+        if not os.path.exists(vars_file):
+            with open(vars_file, "w") as fd:
+                fd.write("version: {0}".format(version))
+        else:
+            new_vars_file = "{0}.new".format(vars_file)
+            with open(new_vars_file, "w") as write_fd:
+                with open(vars_file, "r") as read_fd:
+                    for line in read_fd.readlines():
+                        if line.startswith("version:"):
+                           write_fd.write("version: {0}\n".format(version))
+                        else:
+                            write_fd.write("{0}\n".format(line))
+            os.unlink(new_vars_file)
+
+
+
+class ContainerManager(BaseClass):
+    _alpine = None
+    _docker = None
+    _builder = None
+    _ansible = None
+
+    _config = {}
+    _valid_operations = ["update", "deploy"]
+
+    def __init__(self, cfgfile):
+        super(ContainerManager, self).__init__()
+        config = self.load_configuration(cfgfile)
+        self._config = self.validate_config(config)
+
+    def load_configuration(self, cfgfile):
+        config = {}
+        if not os.path.exists(cfgfile):
+            self.error("No configuration found at {0}".format(cfgfile))
+        with open(cfgfile, 'rb') as fd:
+            config = yaml.load(fd.read())
+        return config
+
+    def validate_config(self, config):
+        ask_dh_username = False
+        ask_dh_password = False
+
+        if "containers" not in config:
+            self.error("No containers configured")
+
+        if "docker" not in config:
+            config["docker"] = {}
+            ask_dh_username = True
+            ask_dh_password = True
+        elif "username" not in config["docker"]:
+            ask_dh_username = True
+        elif config["docker"]["username"] == "":
+            ask_dh_username = True
+        elif "password" not in config["docker"]:
+            ask_dh_password = True
+        elif config["docker"]["password"] == "":
+            ask_dh_password = True
+
+        if ask_dh_username:
+            dh_username = input("Enter username for docker hub: ")
+            config["docker"]["username"] = dh_username
+        if ask_dh_password:
+            dh_password = getpass.getpass("Enter password for docker hub: ")
+            config["docker"]["password"] = dh_password
+
+        return config
+
+    def initialize(self):
+        self._alpine = AlpineLinuxRepositories()
+        self._docker = DockerHubRepository(
+            self._config["docker"]["username"],
+            self._config["docker"]["password"]
+        )
+        self._builder = ContainerBuilder()
+        self._ansible = AnsibleDeployment()
+
+    def perform(self, operation, pkg_name="", force=False, tags=[]):
+        if not operation in self._valid_operations:
+            self.error("Invalid operation: {0}".format(operation))
+
+        self.initialize()
+
+        if operation == "update":
+            self._alpine.update_lists()
+            self._docker.update_tags()
+            if pkg_name:
+                self.update(pkg_name, force)
+            else:
+                self.update_all(force)
+        elif operation == "deploy":
+            self.deploy(tags=tags)
+
+    def update(self, name, force=False):
+        pkg_name = name
+        for c in self._config["containers"]:
+            if c["name"] == name and "childOf" in c and c["childOf"] != "":
+                pkg_name = c["childOf"]
+
+        rel, alpine_latest = self._alpine.get_latest_version(pkg_name)
+        docker_latest = self._docker.get_latest_tag(name)
+
+        if alpine_latest > docker_latest or force:
+            prefix = "Updating"
+            if force:
+                prefix = "Force updating"
+            self.info("{0} {1} to {2}".format(prefix, name, alpine_latest))
+            self._builder.build(name, alpine_latest)
+            self._ansible.set_version(name, alpine_latest)
+
+    def update_all(self, force=False):
+        for container in self._config["containers"]:
+            self.update(container["name"], force)
+
+    def deploy(self, tags=[]):
+        self._ansible.deploy(tags=tags)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description=__description__,
+        usage=__usage__
+    )
+    parser.add_argument("operation",
+                        type=str,
+                        nargs=1,
+                        help="operation to perform")
+    parser.add_argument("-f",
+                        type=str,
+                        metavar="cfgfile",
+                        dest="cfgfile",
+                        default="config.yaml",
+                        help="path to configuration file")
+    parser.add_argument("--force",
+                        action='store_true',
+                        dest="force",
+                        default=False,
+                        help="Force operation")
+    parser.add_argument("--package",
+                        type=str,
+                        metavar="pkgname",
+                        dest="pkgname",
+                        default="",
+                        help="Perform operation on specific package")
+    parser.add_argument("--tags",
+                        type=str,
+                        nargs="+",
+                        metavar="tag",
+                        dest="tags",
+                        default=[],
+                        help="Only deploy these specific tags")
+
+    args = parser.parse_args()
+
+    manager = ContainerManager(args.cfgfile)
+    manager.perform(args.operation[0],
+                              pkg_name=args.pkgname,
+                              force=args.force,
+                              tags=args.tags,)

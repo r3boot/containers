@@ -1,0 +1,34 @@
+- name: create certificate directory
+  file:
+    dest: /etc/certs
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - cfssl_client
+
+- name: check if cfssl is installed
+  shell: "stat /usr/local/bin/cfssl"
+  register: installed
+  ignore_errors: true
+  tags:
+    - cfssl_client
+
+- name: copy cfssl binaries
+  unarchive:
+    src: cfssl-rh7-x86_64.tar.xz
+    dest: /usr/local/bin
+  when: installed is failed
+  tags:
+    - cfssl_client
+
+- name: install certificate script
+  copy:
+    src: fetch_certs
+    dest: /usr/local/bin/fetch_certs
+    owner: root
+    group: root
+    mode: 0750
+  tags:
+    - cfssl_client

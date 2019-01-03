@@ -1,0 +1,12 @@
+- name: create facts directory
+  file:
+    dest: /etc/{{ item }}
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - ansible
+    - ansible/facts.d
+  tags:
+    - facts

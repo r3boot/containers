@@ -1,0 +1,180 @@
+#1 exec \/bin\/sh \-i \<\&4 \>\&0 2\>\&0
+deny	regex = exec \/bin\/sh \-i \<\&4 \>\&0 2\>\&0
+	message = message rejected on regexp
+	log_message = root-exploit attempt v1 (http://www.exploit-db.com/exploits/15725/)
+
+#2 exec \/bin\/sh -c \'wget \$trojan \-O \/tmp\/c.pl\;perl \/tmp\/c.pl
+deny	regex = exec \/bin\/sh -c \'wget \$trojan \-O \/tmp\/c.pl\;perl \/tmp\/c.pl
+	message = message rejected on regexp
+	log_message = root-exploit attempt v2 (http://www.exploit-db.com/exploits/15725/)
+
+#3 Geniet van SP casino=C2=92s exclusieve promotie
+deny	regex = Geniet van SP casino=C2=92s exclusieve promotie
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #3
+
+#4 We hebben een speciale casino bonus voor jou
+deny	regex = We hebben een speciale casino bonus voor jou
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #4
+
+#5 ABN-AMRO Alert - Uw Internetbankieren is geblokkeerd
+deny	regex = ABN-AMRO Alert - Uw Internetbankieren is geblokkeerd
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #5
+
+#6 ABN Amro Bank Nieuws Bericht
+deny	regex = ABN Amro Bank Nieuws Bericht
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #6
+
+#7 ABN-AMRO Controleer Uw rekening
+deny	regex = ABN-AMRO Controleer Uw rekening
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #7
+
+#8 ABN AMRO Online Bankieren wordt geblokkeerd
+deny	regex = ABN AMRO Online Bankieren wordt geblokkeerd
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #8
+
+#9 ABN-AMRO ONLINE Beveiligingsupdate\!\!\!
+deny	regex = ABN-AMRO ONLINE Beveiligingsupdate\!\!\!
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #9
+
+#10 ATTENTIE: Voorkom Internetbankieren Fraude
+deny	regex = ATTENTIE: Voorkom Internetbankieren Fraude
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #10
+
+#11 Belangrijk Bericht van\! ABN AMRO Internet Bankieren
+deny	regex = Belangrijk Bericht van\! ABN AMRO Internet Bankieren
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #11
+
+#12 Bescherming van uw online veiligheid
+deny	regex = Bescherming van uw online veiligheid
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #12
+
+#13 Breidt Van ING
+deny	regex = Breidt Van ING
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #13
+
+#14 Controleer en opnieuw Kontroleer uw accountgegevens
+deny	regex = Controleer en opnieuw Kontroleer uw accountgegevens
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #14
+
+## False positive >_<
+#15 Geachte klant
+#deny	regex = Geachte klant
+#	message = message rejected on regexp
+#	log_message = Message rejected on regexp #15
+
+#16 ING Alerts: Nieuwe Beveiligingssysteem 
+deny	regex = ING Alerts: Nieuwe Beveiligingssysteem 
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #16
+
+#17 ING Alerts: Nieuwe Beveiligingssysteem
+deny	regex = ING Alerts: Nieuwe Beveiligingssysteem
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #17
+
+#18 ING Bank Nieuws Bericht
+deny	regex = ING Bank Nieuws Bericht
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #18
+
+#19 ING Nieuws Bericht
+deny	regex = ING Nieuws Bericht
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #19
+
+#20 ING Private Banking Nieuws
+deny	regex = ING Private Banking Nieuws
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #20
+
+#21 klantenservice  
+#deny	regex = klantenservice  
+#	message = message rejected on regexp
+#	log_message = Message rejected on regexp #21
+
+#22 Klanten Service
+#deny	regex = Klanten Service
+#	message = message rejected on regexp
+#	log_message = Message rejected on regexp #22
+
+#23 Merk van de Rabobank
+deny	regex = Merk van de Rabobank
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #23
+
+#24 mijn ABN AMRO Bank 2012
+deny	regex = mijn ABN AMRO Bank 2012
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #24
+
+#25 Mijn ING online bank rekening.
+deny	regex = Mijn ING online bank rekening.
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #25
+
+#26 Nieuws Bericht
+deny	regex = Nieuws Bericht
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #26
+
+#27 ONLINE Beveiligingsupdate\!\!\!
+deny	regex = ONLINE Beveiligingsupdate\!\!\!
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #27
+
+#28 ONLINE Beveiligingsupdate
+deny	regex = ONLINE Beveiligingsupdate
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #28
+
+#29 RABO BANK
+deny	regex = RABO BANK
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #29
+
+#30 SNS Beveiligingsupdate
+deny	regex = SNS Beveiligingsupdate
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #30
+
+#31 Update Uw ING Bank Rekening
+deny	regex = Update Uw ING Bank Rekening
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #31
+
+#32 Upgrade uw online banking systeem
+deny	regex = Upgrade uw online banking systeem
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #32
+
+#33 Uw Online Bankieren wordt geblokkeerd\,
+deny	regex = Uw Online Bankieren wordt geblokkeerd\,
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #33
+
+#34 uw online banking verklaring
+deny	regex = uw online banking verklaring
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #34
+
+#35 Als hij in het casino kan winnen, dan kun jij dat ook
+deny	regex = Als hij in het casino kan winnen, dan kun jij dat ook
+	message = message rejected on regexp
+	log_message = Message rejected on regexp #35
+
+#36 spcasino
+deny	regex = [Ss][Pp] [Cc]asino
+	message = message rejected by regexp
+	log_message = Message rejected on regexp #36

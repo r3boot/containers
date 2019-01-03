@@ -6,7 +6,7 @@ RUN apk update \
     && apk add openvpn sudo \
     && deluser openvpn \
     && addgroup -S -g 805 openvpn \
-    && adduser -S -G redis -u 805 openvpn
+    && adduser -S -G openvpn -u 805 openvpn
 
 COPY files/run_openvpn /run_openvpn
 COPY files/openvpn.sudoers /etc/sudoers.d/openvpn

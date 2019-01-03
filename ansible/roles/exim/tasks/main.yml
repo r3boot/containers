@@ -1,0 +1,105 @@
+- name: prefetch container
+  shell: docker pull as65342/exim:{{ version }}
+  tags:
+  - exim
+
+- name: add group
+  group:
+    name: exim
+    gid: "{{ uidgid }}"
+  tags:
+  - exim
+
+- name: add user
+  user:
+    name: exim
+    uid: "{{ uidgid }}"
+    group: exim
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Exim system account
+  tags:
+  - exim
+
+- name: create config directories
+  file:
+    dest: /etc/{{ item }}
+    state: directory
+    owner: root
+    group: exim
+    mode: 0750
+  with_items:
+    - mail/exim
+    - exim
+    - exim/conf.d
+    - exim/lists
+  tags:
+    - exim
+
+- name: install configuration files
+  template:
+    src: "{{ exim_role }}/{{ item }}.j2"
+    dest: /etc/exim/{{ item }}
+    owner: root
+    group: exim
+    mode: 0640
+  with_items:
+    - exim.conf
+    - conf.d/acls.conf
+    - conf.d/constants.conf
+    - conf.d/data_regexps.conf
+    - conf.d/server.conf
+  tags:
+    - exim
+
+- name: create log directory
+  file:
+    dest: /var/log/exim
+    state: directory
+    owner: root
+    group: exim
+    mode: '1770'
+  tags:
+    - exim
+
+- name: create spool directory
+  file:
+    dest: /var/spool/exim
+    state: directory
+    owner: root
+    group: exim
+    mode: '1770'
+  tags:
+    - exim
+
+- name: install unit file
+  template:
+    src: exim.service.j2
+    dest: /etc/systemd/system/exim.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart exim
+  tags:
+    - exim
+
+- name: enable service
+  systemd:
+    name: exim
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+    - exim
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/exim.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - exim

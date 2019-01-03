@@ -15,6 +15,7 @@ ExecStart=/bin/docker run --rm \
   -v /var/log/openvpn/%I:/var/log/openvpn \
   -v /dev/net:/dev/net \
   as65342/openvpn:{{ version }}
+ExecStop=/bin/docker stop openvpn-%I
 
 [Install]
 WantedBy=multi-user.target

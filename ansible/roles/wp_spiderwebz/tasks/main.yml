@@ -1,0 +1,64 @@
+- name: prefetch container
+  shell: docker pull as65342/wp_spiderwebz:{{ version }}
+  tags:
+  - wp_spiderwebz
+
+- name: add group
+  group:
+    name: wp_spiderwebz
+    gid: "{{ uidgid }}"
+  tags:
+  - wp_spiderwebz
+
+- name: add user
+  user:
+    name: wp_spiderwebz
+    uid: "{{ uidgid }}"
+    group: wp_spiderwebz
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: PHP FPM system account
+  tags:
+  - wp_spiderwebz
+
+- name: install php-fpm pool file
+  copy:
+    src: wp_spiderwebz.conf
+    dest: /etc/php7/php-fpm.d/wp_spiderwebz.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - wp_spiderwebz
+
+- name: install unit file
+  template:
+    src: wp_spiderwebz.service.j2
+    dest: /etc/systemd/system/wp_spiderwebz.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart wp_spiderwebz
+  tags:
+    - wp_spiderwebz
+
+- name: enable service
+  systemd:
+    name: wp_spiderwebz
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+    - wp_spiderwebz
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/wp_spiderwebz.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - wp_spiderwebz

@@ -1,0 +1,13 @@
+BASE  dc=as65342,dc=net
+URI ldaps://ldap.as65342.net
+ssl start_tls
+
+TLS_CACERT  /etc/cfssl/ca-bundle.pem
+TLS_CERT    /etc/cfssl/ldap/ldap.pem
+TLS_KEY     /etc/cfssl/ldap/ldap-key.pem
+TLS_REQCERT    always
+#TLS_CRLFILE    /etc/ssl/crl/AS65342-PKI.crl
+#TLS_CRLCHECK   all
+
+timelimit       1
+bind_timelimit  1

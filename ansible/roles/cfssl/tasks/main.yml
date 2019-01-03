@@ -1,0 +1,63 @@
+- name: prefetch container
+  shell: docker pull as65342/cfssl:{{ version }}
+  tags:
+  - cfssl
+
+- name: add group
+  group:
+    name: cfssl
+    gid: "{{ uidgid }}"
+  tags:
+  - cfssl
+
+- name: add user
+  user:
+    name: cfssl
+    uid: "{{ uidgid }}"
+    group: cfssl
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Cloudflare SSL toolkit system account
+  tags:
+  - cfssl
+
+- name: create config directory
+  file:
+    state: directory
+    dest: /etc/cfssl
+    owner: root
+    group: cfssl
+    mode: 0750
+  tags:
+  - cfssl
+
+- name: install unit file
+  template:
+    src: cfssl.service.j2
+    dest: /etc/systemd/system/cfssl.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart cfssl
+  tags:
+  - cfssl
+
+- name: enable service
+  systemd:
+    name: cfssl
+    enabled: yes
+    state: started
+  tags:
+  - cfssl
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/cfssl.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - cfssl

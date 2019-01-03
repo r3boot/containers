@@ -1,0 +1,28 @@
+- name: add tls group
+  group:
+    name: tls
+    gid: 43
+  tags:
+  - tls
+
+- name: check if dhparams file is generated
+  shell: "stat /etc/pki/tls/private/dhparams.pem"
+  register: generated
+  ignore_errors: true
+  tags:
+    - tls
+
+- name: generate dhparams
+  shell: "openssl dhparam -out /etc/pki/tls/private/dhparams.pem 2048"
+  when: generated is failed
+  tags:
+    - tls
+
+- name: fix permissions on dhparams
+  file:
+    dest: /etc/pki/tls/private/dhparams.pem
+    owner: root
+    group: tls
+    mode: 0440
+  tags:
+    - tls

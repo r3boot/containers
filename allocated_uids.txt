@@ -4,3 +4,13 @@
 803 spamd
 804 redis
 805 openvpn
+806 postgres -s /bin/sh
+807 cfssl -s /bin/sh
+808 ldap
+809 exim
+810 mailman -s /bin/sh
+811 dovecot
+812 dovenull
+813 nginx
+814 mysql
+815 wp_spiderwebz

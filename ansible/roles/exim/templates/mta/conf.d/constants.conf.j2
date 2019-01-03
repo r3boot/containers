@@ -1,0 +1,95 @@
+LDAP_USER=uid=exim,ou=services,dc=as65342,dc=net
+LDAP_PASS={{ exim_ldap_pass }}
+
+LOCAL_DOMAINS = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailVirtualValue?sub?\
+        (&(objectClass=mailDomain)(mtaTransport=primary))
+
+RELAY_DOMAINS = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailVirtualValue?sub?\
+        (&(objectClass=mailDomain)(mtaTransport=backup))
+
+USER_WANT_ANTISPAM = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///dc=as65342,dc=net?spam?sub?\
+        (&(objectClass=mailAccount)(uid=${acl_m0})(spam=TRUE))
+
+USER_DROP_SPAM = select value from userpref where \
+                username = '$acl_m0' and \
+                preference = '#drop_spam'
+
+USER_WANT_ANTIVIRUS = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///dc=as65342,dc=net?virus?sub?\
+        (&(objectClass=mailAccount)(uid=${acl_m0})(virus=TRUE))
+
+USER_WANT_RBLS = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///dc=as65342,dc=net?spam?sub?\
+        (&(objectClass=mailAccount)(uid=${acl_m0})(rbl=TRUE))
+
+MAILKEY_EMAIL = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailKey?sub?\
+        (&(objectClass=mailVirtual)(mailKey=$local_part@$domain))
+
+MAILVALUE_EMAIL = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailVirtualValue?sub?\
+        (&(objectClass=mailVirtual)(mailKey=$local_part@$domain))
+
+MAILKEY_CATCHALL = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailKey?sub?\
+        (&(objectClass=mailVirtual)(mailKey=@$domain))
+
+MAILVALUE_CATCHALL = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?mailVirtualValue?sub?\
+        (&(objectClass=mailVirtual)(mailKey=@$domain))
+
+ETRN_IP = user=LDAP_USER pass=LDAP_PASS \
+        ldaps:///ou=mail,dc=as65342,dc=net?relayHost?\
+        (&(objectClass=mailDomain)(mailKey=$smtp_command_argument))
+
+DOMAIN_TRANSPORT = ${lookup {domain} lsearch{LISTSDIR/transports.conf}}
+
+MM_HOME=/var/lib/mailman
+MM_WRAP=MM_HOME/mail/mailman
+MM_LISTCHK=MM_HOME/lists/${lc::$local_part}/config.pck
+MM_UID=list
+MM_GID=list
+
+hide ldap_default_servers = ldap.as65342.net::636
+hide ldap_ca_cert_file = /etc/certs/ca-bundle.pem
+hide ldap_cert_file = /etc/certs/exim.pem
+hide ldap_cert_key = /etc/certs/exim-key.pem
+hide av_scanner = $acl_m6
+#hide av_scanner_options = $acl_m7
+hide spamd_address = /var/run/spamd/spamd.socket
+#hide mysql_servers = (/var/run/mysqld/mysqld.sock)/sa/exim/BOyWdbv3x5ius
+
+domainlist local_domains = ${tr{${lookup ldapm{LOCAL_DOMAINS}}} {,}{:}}
+domainlist relay_to_domains = ${tr{${lookup ldapm{RELAY_DOMAINS}}} {,}{:}}
+domainlist mm_domains = LISTDIR/mm_domains.conf
+domainlist fwd_domains = LISTDIR/fwd_domains.conf
+
+#hostlist   relay_from_hosts = LISTDIR/relay_from_hosts.conf                     
+hostlist relay_from_hosts = \
+        127.0.0.1 : \
+        10.42.0.0/19 : \
+        2001::7b8::607::::0/48 : \
+        2001::980::55bf::::0/48 : \
+        2001::7b8::607::7::::0/64 : \
+        2a02::58::5::4a00::::/56 : \
+        2001::7b8::3::47::213::154::229::26 : \
+        2a02::898::62::f6::::5a : \
+        2a02::898::62::f6::::8 : \
+        94.142.246.90 : \
+        84.245.27.197 : \
+        82.94.235.106 : \
+        94.142.246.8 : \
+        37.139.24.53
+
+
+hostlist   dontscan_hosts = LISTSDIR/dontscan_hosts.conf                        
+hostlist   broken_mailman_senders = LISTSDIR/broken_mailman_senders.conf                        
+
+tls_certificate = /etc/dehydrated/smtp.as65342.net/fullchain.pem
+tls_privatekey = /etc/dehydrated/smtp.as65342.net/privkey.pem
+
+smtp_etrn_command = "/usr/sbin/exim4 -R \"${if match {$domain} {^[@#]} {${substr_1:$domain}} {$domain}}\""
+

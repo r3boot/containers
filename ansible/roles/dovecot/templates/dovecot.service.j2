@@ -1,0 +1,17 @@
+[Unit]
+Description=Dovecot running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name dovecot \
+  --network host \
+  -v /etc/dovecot:/etc/dovecot \
+  -v /etc/dehydrated/imap.as65342.net:/etc/letsencrypt \
+  -v /etc/certs/dovecot:/etc/certs \
+  as65342/dovecot:{{ version }}
+ExecStop=/bin/docker stop dovecot
+
+[Install]
+WantedBy=multi-user.target

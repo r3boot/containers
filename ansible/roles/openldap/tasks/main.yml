@@ -1,0 +1,160 @@
+- name: prefetch container
+  shell: docker pull as65342/openldap:{{ version }}
+  tags:
+    - openldap
+
+- name: add group
+  group:
+    name: ldap
+    gid: "{{ uidgid }}"
+  tags:
+  - openldap
+
+- name: add user
+  user:
+    name: ldap
+    uid: "{{ uidgid }}"
+    group: ldap
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: OpenLDAP system account
+  tags:
+    - openldap
+
+- name: create configuration directories
+  file:
+    dest: "/etc/{{ item }}"
+    state: directory
+    owner: root
+    group: ldap
+    mode: 0750
+  with_items:
+    - openldap
+    - openldap/schema
+  tags:
+    - openldap
+
+- name: install configuration files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/openldap/{{ item }}"
+    owner: root
+    group: ldap
+    mode: 0640
+  with_items:
+    - slapd.conf
+    - schema/core.schema
+    - schema/cosine.schema
+    - schema/inetorgperson.schema
+    - schema/openldap.schema
+    - schema/nis.schema
+    - schema/misc.schema
+    - schema/samba.schema
+    - schema/ldapns.schema
+    - schema/mail.schema
+  notify:
+  - restart openldap
+  tags:
+    - openldap
+
+- name: create database directory
+  file:
+    dest: /var/lib/openldap
+    state: directory
+    owner: ldap
+    group: ldap
+    mode: 0700
+  tags:
+    - openldap
+
+- name: install database tuning file
+  template:
+    src: DB_CONFIG.j2
+    dest: /var/lib/openldap/DB_CONFIG
+    owner: ldap
+    group: ldap
+    mode: 0600
+  tags:
+    - openldap
+
+- name: create certificate directory
+  file:
+    dest: /etc/certs/openldap
+    state: directory
+    owner: root
+    group: ldap
+    mode: 0750
+  tags:
+    - openldap
+
+- name: install certificate configuration
+  template:
+    src: config.json.j2
+    dest: /etc/certs/openldap/config.json
+    owner: root
+    group: ldap
+    mode: 0640
+  tags:
+    - openldap
+
+- name: check if certificate is installed
+  shell: "stat /etc/certs/openldap/openldap.pem"
+  register: certs
+  ignore_errors: true
+  tags:
+    - openldap
+
+- name: fetch new certificates
+  shell: "/usr/local/bin/fetch_certs openldap"
+  when: certs is failed
+  tags:
+    - openldap
+
+- name: fix permissions for new certs
+  shell: "find /etc/certs/openldap/openldap* -type f -exec chmod 0640 {} \\;"
+  when: certs is failed
+  tags:
+    - openldap
+
+- name: fix ownership for new certs
+  shell: "find /etc/certs/openldap/openldap* -type f -exec chown root:ldap {} \\;"
+  when: certs is failed
+  tags:
+    - openldap
+
+- name: install ca bundle
+  shell: "install -o root -g ldap -m 0640 /etc/cfssl/ca-bundle.pem /etc/certs/openldap/ca-bundle.pem"
+  when: certs is failed
+  tags:
+    - openldap
+
+- name: install unit file
+  template:
+    src: openldap.service.j2
+    dest: /etc/systemd/system/openldap.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart openldap
+  tags:
+    - openldap
+
+- name: enable service
+  systemd:
+    name: openldap
+    enabled: yes
+    state: started
+  tags:
+    - openldap
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/openldap.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - openldap

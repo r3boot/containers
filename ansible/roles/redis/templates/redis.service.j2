@@ -10,6 +10,7 @@ ExecStart=/bin/docker run --rm \
   -v /etc/redis.conf:/etc/redis.conf \
   -v /var/lib/redis:/var/lib/redis \
   as65342/redis:{{ version }}
+ExecStop=/bin/docker stop redis
 
 [Install]
 WantedBy=multi-user.target

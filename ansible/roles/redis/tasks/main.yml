@@ -62,3 +62,13 @@
     state: started
   tags:
     - redis
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/redis.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - redis

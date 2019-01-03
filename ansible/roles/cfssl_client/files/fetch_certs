@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -x
+
+CERTS_DIR='/etc/certs'
+
+PATH="/sbin:/usr/sbin:/usr/local/sbin:/bin:/usr/bin:/usr/local/bin"
+export PATH
+
+function gencert {
+    CERTNAME="$(basename ${1})"
+
+    cd ${CERTS_DIR}/${CERTNAME}
+    cfssl genkey config.json | cfssljson -bare ${CERTNAME}
+    cfssl sign -remote pki.as65342.net:8888 -profile "server" \
+        ${CERTNAME}.csr | cfssljson -bare ${CERTNAME}
+    chown root:ssl-cert ${CERTNAME}.pem \
+        ${CERTNAME}-key.pem
+    chmod 0640 ${CERTNAME}.pem ${CERTNAME}-key.pem
+}
+
+if [[ ${#} -eq 0 ]]; then
+    cd ${CERTS_DIR}
+    find . -mindepth 1 -maxdepth 1 -type d | while read CERTNAME; do
+        gencert "${CERTNAME}"
+    done
+else
+    gencert "${1}"
+fi

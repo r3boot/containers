@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PGDATA='/var/lib/postgresql'
+PGUSER='postgres'
+
+# Start up psql
+su - ${PGUSER} -c "exec psql"

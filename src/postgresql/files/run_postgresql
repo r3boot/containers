@@ -7,9 +7,7 @@ PGGROUP='postgres'
 
 # Initialize the database first
 if [[ ! -d "${PGDATA}/data" ]]; then
-  mkdir -p "${PGDATA}/data"
-  chown -Rf ${PGUSER}:${PGGROUP} ${PGDATA}
-  chmod 0700 ${PGDATA}
+  install -d -o ${PGUSER} -g ${PGGROUP} -m 0700 "${PGDATA}/data"
   su - ${PGUSER} -c "initdb --pgdata \"${PGDATA}/data\""
 
   # Update pg_hba.conf so containers can connect

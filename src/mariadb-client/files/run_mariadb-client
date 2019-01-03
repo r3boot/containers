@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo ${1} | grep -q ^mysql
+if [[ ${?} -eq 1 ]]; then
+    echo "Error: unknown mariadb-client command"
+    exit 1
+fi
+
+CMD="/usr/bin/${1}"
+if [[ ! -x "${CMD}" ]]; then
+    echo "Error: ${CMD} does not exist"
+    exit 1
+fi
+shift
+
+exec ${CMD} ${@}

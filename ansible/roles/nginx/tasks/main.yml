@@ -1,0 +1,112 @@
+- name: prefetch container
+  shell: docker pull as65342/nginx:{{ version }}
+  tags:
+  - nginx
+
+- name: add group
+  group:
+    name: nginx
+    gid: "{{ uidgid }}"
+  tags:
+  - nginx
+
+- name: add user
+  user:
+    name: nginx
+    uid: "{{ uidgid }}"
+    group: nginx
+    groups: tls
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Nginx system account
+  tags:
+  - nginx
+
+- name: create configuration directories
+  file:
+    dest: "/etc/{{ item }}"
+    state: directory
+    owner: root
+    group: nginx
+    mode: 0750
+  with_items:
+    - nginx
+    - nginx/modules
+    - nginx/sites-available
+    - nginx/sites-enabled
+    - nginx/conf.d
+  tags:
+    - nginx
+
+- name: install static configuration files
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/nginx/{{ item }}"
+    owner: root
+    group: nginx
+    mode: 0640
+  with_items:
+    - fastcgi.conf
+    - fastcgi_params
+    - mime.types
+    - nginx.conf
+    - scgi_params
+    - uwsgi_params
+    - conf.d/tls.conf
+    - conf.d/well-known-dir.conf
+    - modules/http_fancyindex.conf
+    - sites-available/000-default.conf
+  notify:
+    - restart nginx
+  tags:
+    - nginx
+
+- name: enable default config
+  file:
+    src: /etc/nginx/sites-available/000-default.conf
+    dest: /etc/nginx/sites-enabled/000-default.conf
+    state: link
+  tags:
+    - nginx
+
+- name: install wrapper script
+  template:
+    src: nginx.j2
+    dest: /usr/local/bin/nginx
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - nginx
+
+- name: install unit file
+  template:
+    src: nginx.service.j2
+    dest: /etc/systemd/system/nginx.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx
+  tags:
+    - nginx
+
+- name: enable service
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+    daemon_reload: true
+  tags:
+    - redis
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/nginx.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - nginx

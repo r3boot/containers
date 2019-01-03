@@ -1,0 +1,20 @@
+[Unit]
+Description=Wordpress instance for blog.spiderwebz.nl running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o wp_spiderwebz -g nginx -m 1770 /run/wordpress/wp_spiderwebz
+ExecStart=/bin/docker run --rm \
+  --name wp_spiderwebz \
+  --network host \
+  -v /etc/php7/php.ini:/etc/php7/php.ini \
+  -v /etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf \
+  -v /etc/php7/php-fpm.d/wp_spiderwebz.conf:/etc/php7/php-fpm.d/wp_spiderwebz.conf \
+  -v /var/www/spiderwebz:/siteroot \
+  -v /run/wordpress/wp_spiderwebz:/run \
+  as65342/wp_spiderwebz:{{ version }}
+ExecStop=/bin/docker stop wp_spiderwebz
+
+[Install]
+WantedBy=multi-user.target

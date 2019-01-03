@@ -1,0 +1,15 @@
+[Unit]
+Description=Cloudflare SSL toolkit service running inide of docker
+After=postgresql.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name cfssl \
+  --network host \
+  -v /etc/cfssl:/etc/cfssl \
+  as65342/cfssl:{{ version }}
+ExecStop=/bin/docker stop cfssl
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+install -d -o root -g nginx -m 1770 /run/nginx
+
+exec /usr/sbin/nginx ${@}

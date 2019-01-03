@@ -1,0 +1,394 @@
+#acl_smtp_dkim = acl_check_dkim
+acl_smtp_connect = acl_check_host
+acl_smtp_helo = acl_check_helo
+acl_smtp_mail = acl_check_mail
+acl_smtp_rcpt = acl_check_rcpt
+acl_smtp_data = acl_check_data
+acl_smtp_mime = acl_check_mime
+acl_smtp_etrn = acl_check_etrn
+
+begin acl
+
+#acl_check_dkim:
+#	accept	hosts = 127.0.0.1 : ::::1
+#
+#    # Mailinglists
+#    accept  hosts = 217.198.23.132 : 178.63.120.202 : 195.42.179.200 : 45.33.49.119 : 171.67.219.81 : 171.67.219.82 : 171.67.219.83 : 171.67.219.88 : 166.84.7.15 : 4.31.198.44 : 204.42.254.5 : 50.31.151.74 : 208.118.235.17 : 213.138.100.131 : 213.136.11.147 : 188.40.154.12 : 65.50.255.19 : 64.191.0.198 : 64.191.0.197 : 77.72.225.243 : 212.83.196.33 : 94.142.245.196 : 2a01::4f8::121::43cd::::1::9 : 2600::3c01::::f03c::91ff::fe98::ff4e : 2001::470::30::84::e276::63ff::fe62::3500 : 2001::1900::3001::11::::2c : 2604::3200::0::3::21e::67ff::fe86::ff9c : 2001::418::3f4::::5 : 2001::1838::2001::8::::10 : 2001::4830::134::3::::11 : 2001::41c8::51::83::feff::ff::fe00::a0b : 2001::7b8::e06::1::::102 : 2a01::4f8::221::41::154c:::: : 2604::3200::0::3::21e::67ff::fe86::ff9c : 2620::ff::c000::::198 : 2620::ff::c000::::197 : 2a01::3f0::0::57::::243 : 2001::4018::1002::1000::::33
+#
+#    deny    message = dkim failed
+#        log_message = DKIM test failed: $dkim_verify_reason
+#        add_header = X-DKIM: DKIM test failed: (address=$sender_address domain=$dkim_cur_signer), signature is bad.
+#        dkim_status = fail
+#
+#    deny    message = dkim failed
+#        log_message = DKIM test passed (address=$sender_address domain=$dkim_cur_signer), but signature is invalid.
+#        add_header = X-DKIM: $dkim_cur_signer ($dkim_verify_status); $dkim_verify_reason
+#        dkim_status = invalid
+#
+#    accept log_message = DKIM test passed
+#        add_header = X-DKIM: DKIM passed: (address=$sender_address domain=$dkim_cur_signer), signature is good.
+#        dkim_status = pass
+#
+#    accept
+
+acl_check_host:
+	accept  log_message = host is on a trusted network
+		hosts = LISTSDIR/trusted_nets
+
+	accept	log_message = host is on whitelist
+		hosts = LISTSDIR/servers_whitelist
+
+	deny	log_message = host is on blacklist
+		message = host is on blacklist
+		hosts = LISTSDIR/servers_blacklist
+
+	accept	hosts = !+relay_from_hosts
+		delay = 5s
+
+	accept
+
+acl_check_helo:
+        accept  hosts = localhost
+
+	deny	condition = ${if eq {$sender_helo_name}{}}
+		log_message = Cannot accept mail before HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	deny	condition = ${if eq{[$interface_address]}{$sender_helo_name}}
+		log_message = Cannot use [interface_address] with HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	deny	condition = ${if isip{$sender_helo_name}}
+		log_message = Cannot use sender_helo_name without brackets with HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	## TODO: integrate with lsearch
+	#deny	condition = ${if and { \
+	#		{ match{$sender_helo_name}{\N^\[.+\]$\N} } \
+	#		{ !eq{[$sender_host_address]}{$sender_helo_name} } \
+	#		}}
+	#	message = $sender_helo_name is not your address [$sender_host_address]
+	#	log_message = $sender_helo_name is not your address [$sender_host_address]
+	#	message = $sender_helo_name is not your address [$sender_host_address]
+
+	deny	condition = ${if and { \
+			{ !match{${lc:$sender_helo_name}}{\N^\[.+\]$\N} } \
+			{ !match{${lc:$sender_helo_name}}{\N^(?i)((?=[^-])[a-z0-9-]*[a-z0-9]\.)+[a-z]{2,6}$\N} } \
+			}}
+		hosts = !+dontscan_hosts : !77.175.154.236 : !10.42.2.13 : !84.245.27.197
+		#domains = .freedom
+		log_message = Cannot use a non-FQDN hostname with HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	deny	condition = ${if match_domain {${lc:$sender_helo_name}}{+local_domains:+relay_to_domains:$primary_hostname}}
+		log_message = Cannot use one of my domains as hostname for HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	deny	condition = ${if or { \
+				{eq {${lc:$sender_helo_name}}{localhost}} \
+				{eq {${lc:$sender_helo_name}}{localhost.localdomain}} \
+				{eq {${lc:$sender_helo_name}}{127.0.0.1}} \
+				{eq {${lc:$sender_helo_name}}{[127.0.0.1]}} \
+			    } {true}{false} }
+		hosts = !+relay_from_hosts : !+dontscan_hosts
+		log_message = Cannot use localhost with HELO/EHLO
+		message = Invalid HELO/EHLO
+
+	accept
+
+acl_check_mail:
+
+	deny	!verify = sender/callout=2m,defer_ok
+		condition = ${if eq{$sender_verify_failure}{}}
+		log_message = SPF Sender failed: $sender_verify_failure
+		message = SPF Sender failed: $sender_verify_failure
+
+	## TODO, integrate with verify's
+	#deny	log_message = Sender has no reverse DNS
+	#	message = Sender has no reverse DNS
+	#	!verify = reverse_host_lookup
+
+	deny	senders = LISTSDIR/senders_blacklist
+		log_message = sender is on blacklist
+		message = sender is on blacklist
+
+	#defer	ratelimit = 5 / 30s / per_mail / leaky
+        #        # condition = ${if match_domain{$sender_domains}{+relay_from_hosts}{yes}{no}} 
+	#	domains = !+relay_from_hosts
+	#	log_message = You are sending mail too fast. You are allowed to send $sender_rate_limit per $sender_rate_period. (Currently: $sender_rate)
+	#	message = You are sending mail too fast. You are allowed to send$sender_rate_limit per $sender_rate_period. (Currently: $sender_rate)
+
+	accept
+
+acl_clean_helo:
+	accept	verify     = helo
+		condition  = ${if match{$sender_helo_name}{\N(\d{1,3}[.-]\d{1,3}[.-]\d{1,3}[.-]\d{1,3})|([0-9a-f]{8})|([0-9A-F]{8})\N}{false}{true}}
+
+acl_check_rcpt:
+        deny    domains     = !+local_domains
+		log_message = Restricted characters in address
+		message = Restricted characters in address
+                local_parts = ^[./|] : ^.*[@%!] : ^.*/\\.\\./
+
+	discard	domains	= +local_domains
+		local_parts = ^MAILER-DAEMON
+
+	accept	hosts = +relay_from_hosts
+
+	deny	sender_domains = +local_domains
+		!authenticated = *
+		hosts = ! +relay_from_hosts : !+broken_mailman_senders
+		log_message = SMTP AUTH required
+		message = SMTP AUTH required
+
+	#deny	log_message = $sender_host_address is not allowed to send mail from $sender_address_domain
+	#	message = $sender_host_address is not allowed to send mail from $sender_address_domain
+	#	spf = fail/defer_ok
+
+	#warn	message = $spf_received
+
+	#warn	control = dk_verify
+
+	deny	!domains = catchall_domains
+		log_message = Recipient Verify Failed: No such user
+		message = No such user
+		!verify = recipient/callout=2m,defer_ok,use_sender
+
+	deny	log_message = Too many failed recipients
+		message = Too many failed recipients
+		condition = ${if > {${eval:$rcpt_fail_count}}{3}{yes}{no}}
+		!verify = recipient/callout=2m,defer_ok,use_sender
+
+	deny	log_message = No such user (delaying)
+		message = No such user
+		domains = +local_domains
+		!verify = recipient/callout=2m,defer_ok,use_sender
+		delay = ${eval:$rcpt_fail_count*10 + 20}s
+
+	deny	senders = : postmaster@*
+		condition = ${if >{$recipients_count}{1}{true}{false}}
+		log_message = Too many recipients for bounce
+		message = Too many recipients
+
+
+# acl_m0 = Right-hand side of the virtual
+# acl_m1 = multiple recipients
+# acl_m2 = want antispam
+# acl_m3 = want antivirus
+# acl_m4 = want rbl
+# acl_m5 = spam score
+# acl_m6 = av_scanner
+# acl_m7 = signature
+# acl_m8 = has_been_scanned
+
+	## First, do ldap based lookups if we're on the primary mx
+	warn	condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		set acl_m0 = ${lookup ldapm {MAILVALUE_EMAIL}}
+
+	warn	condition = ${if def:acl_m0}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		set acl_m2 = ${lookup ldapm {USER_WANT_ANTISPAM}}
+
+	warn	condition = ${if def:acl_m0}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		set acl_m3 = ${lookup ldapm {USER_WANT_ANTIVIRUS}}
+
+	warn	condition = ${if def:acl_m0}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		set acl_m4 = ${lookup ldapm {USER_WANT_RBLS}}
+
+	warn	condition = ${if def:acl_m0}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		set acl_m5 = ${if eq{${lookup mysql {USER_DROP_SPAM}}}{1}{1}{0}}
+
+	## Then, do the same if we're not on the primary mx
+	warn	condition = ${if eq{$primary_hostname}{services.as65342.net}{0}{1}}
+		set acl_m0 = ${lookup ldapm {MAILVALUE_EMAIL}}
+
+	warn	condition = ${if eq{$primary_hostname}{services.as65342.net}{0}{1}}
+		set acl_m2 = ${lookup ldapm {USER_WANT_ANTISPAM}}
+
+	warn	condition = ${if eq{$primary_hostname}{services.as65342.net}{0}{1}}
+		set acl_m3 = ${lookup ldapm {USER_WANT_ANTIVIRUS}}
+
+	warn	condition = ${if eq{$primary_hostname}{services.as65342.net}{0}{1}}
+		set acl_m4 = ${lookup ldapm {USER_WANT_RBLS}}
+
+	warn	condition  = ${if match{$acl_m0}{,}}
+		set acl_m1 = multi_recip
+
+	accept	log_message = Relaying message for $local_part@$domain
+		message = Relaying message for $local_part@$domain
+		domains = +relay_to_domains
+
+	deny	!domains = +relay_to_domains
+		condition = ${if match{$acl_m0}{error:user unknown}}
+		log_message = No such user
+		message = No such user
+
+	accept  authenticated = *
+
+        accept  hosts         = +relay_from_hosts
+		control	      = submission
+
+        require log_message = relay not permitted
+        	message = relay not permitted
+                domains = ! +mm_domains : +local_domains : +relay_to_domains
+
+	deny	log_message   = recipient on blacklist
+		message   = Recipient is blacklisted
+		recipients = LISTSDIR/recipients_blacklist
+
+	accept	log_message = host is listed in $dnslist_domain\n$dnslist_text
+		dnslists = \
+			nlwhitelist.dnsbl.bit.nl : \
+			list.dnswl.org
+
+        deny	condition = ${if def:acl_m4}
+		log_message = host is listed in $dnslist_domain\n$dnslist_text
+		message = Listed in RBL
+                dnslists = \
+                        virbl.dnsbl.bit.nl : \
+                        db.wpbl.info : \
+                        cbl.abuseat.org : \
+			ubl.unsubscore.com : \
+			bl.spamcop.net
+
+	## Removed rbl's: list.dsbl.org, ubl.unsubscore.com, bl.spamcop.net, zen.spamhaus.org dnsbl.njabl.org bl.spamcannibal.org
+
+	accept	condition = ${lookup ldapm {MAILKEY_EMAIL}{1}{0}}
+
+	accept	condition = ${lookup ldapm {MAILKEY_CATCHALL}{1}{0}}
+
+	accept	condition = ${lookup ldapm {MAILKEY_ALIAS}{1}{0}}
+
+        require	log_message = unroutable recipient
+        	message = unroutable recipient
+		verify = recipient
+
+	deny	log_message = No such user
+		message = No such user
+
+acl_check_data:
+	warn	set acl_m7 = ${hmac{md5}\
+			{c8aa483f9529f286683263ac0a40e3a59ea733e8}\
+			{$body_linecount}}
+
+	warn	set acl_m8 = ${if eq {$acl_m7}{$h_X-Scan-Signature:}{1}{0}}
+
+	accept	condition = $acl_m8
+		log_message = Message already went through our scanners
+
+	accept	hosts = LISTSDIR/dontscan_hosts
+		log_message = Host is listed in dontscan_hosts
+
+	accept	condition = ${if >{$message_size}{500K}}
+		add_header = X-Scan-Status: Not scanned, too large
+
+	deny	condition = ${if def:acl_m3}
+		set acl_m6 = clamd:/var/run/clamav/clamd.ctl
+		log_message = Rejected DATA: Message contains $malware_name (ClamAV)
+		message = Will not accept malware
+		malware = */defer_ok
+
+	accept	condition = ${if >{$message_size}{500K}}
+		add_header = X-Spam-Status: Not scanned, too large for spamassassin
+
+	## First, check for drop_spam in mysql if we're the primary
+	deny	condition = ${if def:acl_m2}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{1}{0}}
+		condition = ${if eq{${lookup mysql{USER_DROP_SPAM}}}{1}{true}{false}}
+		spam = ${acl_m0}:true/defer_ok
+		set acl_m5 = ${if gt{$spam_score_int}{0}{${sg{$spam_bar}{\N\+\N}{*}}}{${sg{$spam_bar}{\N-\N}{}}}}
+		condition = ${if >{$spam_score_int}{50}{1}{0}}
+		log_message = Rejected DATA: Classified as spam
+		message = Classified as spam
+
+	# Then, check for drop_spam in plaintext file if we're not the primary
+	deny	condition = ${if def:acl_m2}
+		condition = ${if eq{$primary_hostname}{services.as65342.net}{0}{1}}
+		condition = ${if eq{$acl_m2}{drop}{1}{0}}
+		spam = ${acl_m0}:true/defer_ok
+		set acl_m5 = ${if gt{$spam_score_int}{0}{${sg{$spam_bar}{\N\+\N}{*}}}{${sg{$spam_bar}{\N-\N}{}}}}
+		condition = ${if >{$spam_score_int}{50}{1}{0}}
+		log_message = Rejected DATA: Classified as spam
+		message = Classified as spam
+
+	warn	condition = ${if def:acl_m2}
+		spam = ${acl_m0}:true/defer_ok
+		set acl_m3 = ${if gt{$spam_score_int}{0}{${sg{$spam_bar}{\N\+\N}{*}}}{${sg{$spam_bar}{\N-\N}{}}}}
+		condition = ${if >{$spam_score_int}{50}{1}{0}}
+		log_message = Classified as spam (score $spam_score)
+		add_header = Subject: *****SPAM***** $h_Subject
+		add_header = X-Spam-Prev-Subject: $h_Subject
+		add_header = X-Spam-Flag: YES
+		add_header = X-Spam-Level: ${acl_m5}
+		add_header = X-Spam-Status: $spam_report
+
+	deny	log_message = Rejected DATA: No subject and body
+		message = Invalid message
+		!condition = ${if def:h_Subject:}
+		condition = ${if <{$body_linecount}{1}{true}{false}}
+
+	#deny	message = Message fails DK check
+	#	log_message = Message fails DK check
+	#	!dk_status = good
+	#	dk_sender_domains = gmail.com : yahoo.com
+
+	# Deny based on regexps
+	.include CONFDIR/data_regexps.conf
+
+	warn	message = X-Scan-Signature: $acl_m7
+		add_header = X-Scanned-On: ${primary_hostname}
+
+	accept
+
+acl_check_mime:
+	accept	senders = LISTSDIR/mime_whitelist.local
+
+	#deny	log_message = Will not accept mail with charset big5
+	#	message = Will not accept mail with charset big5
+	#	regex = Content-type: text/html; charset=[Bb][Ii][Gg]5
+
+	#deny	log_message = Will not accept mail with charset ks
+	#	message = Will not accept mail with charset ks
+	#	regex = Content-type: text/html; charset=\"[Kk][Ss]
+
+	#deny	log_message = Will not accept mail with charset euc-kr
+	#	message = Will not accept mail with charset euc-kr
+	#	regex = Content-type: text/html; charset=\"[Ee][Uu][Cc]-[Kk][Rr]
+
+	#deny	log_message = Will not accept mail with charset gb2312
+	#	message = Will not accept mail with charset gb2312
+	#	regex = Content-type: text/html; charset="[Gg][Bb]2312
+
+	#deny	log_message = Will not accept mail with charset euc-tw
+	#	message = Will not accept mail with charset euc-tw
+	#	regex = Content-type: text/html; charset=[Ee][Uu][Cc]-[Tt][Ww]
+
+	#deny	log_message = Will not accept mail with charset iso-2022-kr
+	#	message = Will not accept mail with charset iso-2022-kr
+	#	regex = Content-type: text/html; charset=[Ii][Ss][Oo]-2022-[Kk][Rr]
+
+	#deny	log_message = Will not accept mail with charset ks_c_5601-1987
+	#	message = Will not accept mail with charset ks_c_5601-1987
+	#	regex = Content-type: text/html; charset=[Kk][Ss]_[Cc]_5601-1987
+
+	# FP's: 2007-12-18 12:34:57 1J4aiv-0005GU-Cm H=mx2.freebsd.org [2001:4f8:fff6::35]:60012 I=[2001:7b8:3:47:206:29ff:fe8f:adc3]:25 F=<owner-freebsd-hackers@freebsd.org> rejected during MIME ACL checks: Will not accept mail with charset koi8
+
+	#deny	message = Will not accept mail with charset koi8
+	#	log_message = Will not accept mail with charset koi8
+	#	regex = Content-Type: text/html; charset=[kK][oO][iI]8-[rR]"
+
+	accept
+
+acl_check_etrn:
+	accept	condition = ${if eq{$sender_host_address} {ETRN_IP}}
+		log_message = Starting queue runner for $smtp_command_argument
+		message = Starting queue runner
+
+	deny	log_message = ETRN denied for $smtp_command_argument from $sender_host_address
+		message = ETRN denied
+
+
+	deny

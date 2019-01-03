@@ -1,0 +1,19 @@
+[Unit]
+Description=Nginx running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name nginx \
+  --network host \
+  -v /etc/nginx:/etc/nginx \
+  -v /etc/dehydrated:/etc/dehydrated \
+  -v /etc/pki:/etc/pki \
+  -v /var/www:/var/www \
+  -v /run/wordpress:/run/wordpress \
+  as65342/nginx:{{ version }}
+ExecStop=/bin/docker stop nginx
+
+[Install]
+WantedBy=multi-user.target

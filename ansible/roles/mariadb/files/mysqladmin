@@ -1,0 +1,8 @@
+#!/bin/sh
+
+exec docker run -it --rm --name mysqladmin \
+  --network host \
+  -v /etc/mysql:/etc/mysql \
+  -v /var/lib/mysql:/var/lib/mysql \
+  -v /run/mysql:/run \
+  as65342/mariadb-client:10.2.15-r0 mysqladmin ${@}

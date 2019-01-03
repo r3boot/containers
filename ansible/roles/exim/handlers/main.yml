@@ -1,0 +1,7 @@
+- name: restart exim
+  systemd:
+    name: exim
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - exim

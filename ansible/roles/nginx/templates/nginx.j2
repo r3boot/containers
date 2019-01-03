@@ -1,0 +1,8 @@
+#!/bin/sh
+
+exec /bin/docker run --rm -it --network host \
+    -v /etc/nginx:/etc/nginx \
+    -v /etc/dehydrated:/etc/dehydrated \
+    -v /etc/pki:/etc/pki \
+    -v /var/www:/var/www \
+    as65342/nginx:{{ version }} ${@}

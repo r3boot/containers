@@ -1,0 +1,17 @@
+[Unit]
+Description=Postgresql server running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o root -g postgresql -m 1770 /run/postgresql
+ExecStart=/bin/docker run --rm \
+  --name postgresql \
+  --network host \
+  -v /run/postgresql:/tmp \
+  -v /var/lib/postgresql:/var/lib/postgresql \
+  as65342/postgresql:{{ version }}
+ExecStop=/bin/docker stop postgresql
+
+[Install]
+WantedBy=multi-user.target

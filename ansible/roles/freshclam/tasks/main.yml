@@ -34,3 +34,13 @@
     state: started
   tags:
     - freshclam
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/freshclam.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - freshclam

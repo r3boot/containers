@@ -1,0 +1,7 @@
+#!/bin/sh
+
+exec docker run --rm -it \
+    --network host \
+    -v /run/postgresql:/tmp \
+    -v /var/lib/postgresql:/var/lib/postgresql \
+    as65342/psql:{{ version }} ${@}

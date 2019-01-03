@@ -1,0 +1,7 @@
+- name: restart mailman-core
+  systemd:
+    name: mailman-core
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - mailman-core

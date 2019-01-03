@@ -1,0 +1,161 @@
+smtp_banner = "{{ ansible_hostname }}.{{ ansible_domain }} ESMTP"
+primary_hostname = {{ ansible_hostname }}.{{ ansible_domain }}
+smtp_active_hostname = {{ ansible_hostname }}.{{ ansible_domain }}
+qualify_domain = {{ ansible_domain }}
+
+CONFDIR = /etc/exim/conf.d
+LISTSDIR = /etc/exim/lists
+
+.include CONFDIR/constants.conf
+.include CONFDIR/server.conf
+.include CONFDIR/acls.conf
+
+begin routers
+
+backupmx:
+	debug_print = ":R backupmx [ $domain ]"
+	driver = manualroute
+    	domains = !+local_domains
+	transport = remote_smtp
+	route_data = DOMAIN_TRANSPORT
+
+domain_literal:
+	debug_print = ":R domain_literal [ $domain ]"
+    driver = ipliteral
+    domains = ! +local_domains
+    transport = remote_smtp
+
+dnslookup:
+	debug_print = ":R dnslookup [ $domain ]"
+    driver = dnslookup
+    domains = ! +local_domains
+    transport = remote_smtp
+    ignore_target_hosts = 0.0.0.0 : 127.0.0.0/8
+    no_more
+
+learn_spam:
+	debug_print = ":R learn_spam [ $domain ]"
+    driver = redirect
+    domains = +local_domains
+    local_part_suffix = -spam
+    data = ${lookup ldapm{MAILVALUE_EMAIL}}
+    pipe_transport = learn_spam
+    no_more
+
+system_aliases:
+    driver = redirect
+    domains = +fwd_domains
+    allow_fail
+    allow_defer
+    data = ${lookup {$local_part} lsearch{/etc/aliases}}
+    file_transport = address_file
+    pipe_transport = address_pipe
+    no_more
+
+mailman:
+	debug_print = ":R mailman [ $domain ]"
+    driver = accept
+    domains = +mm_domains
+    require_files = MM_LISTCHK
+    local_part_suffix_optional
+    local_part_suffix = -admin : \
+            -bounces   : -bounces+*  : \
+            -confirm   : -confirm+*  : \
+            -join      : -leave      : \
+            -owner     : -request    : \
+            -subscribe : -unsubscribe
+    transport = mailman
+
+virtual:
+	debug_print = ":R virtual [ $domain ]"
+    driver  = redirect
+    domains = +local_domains
+    data = ${lookup ldapm{MAILVALUE_EMAIL}}
+    pipe_transport = mailman
+
+mailbox:
+	debug_print = ":R mailbox [ $domain ]"
+    driver = accept
+    domains = +local_domains
+    check_local_user
+    transport = dovecot
+    no_verify
+    no_expn
+
+localuser:
+	debug_print = ":R localuser [ $domain ]"
+    driver = accept
+    check_local_user
+    # local_part_suffix = +* : -*
+    # local_part_suffix_optional
+    transport = local_delivery
+    cannot_route_message = Unknown user
+
+begin transports
+
+remote_smtp:
+    driver = smtp
+
+learn_ham:
+    driver = pipe
+    path = "/bin:/usr/bin:/usr/local/bin"
+    command = "/usr/local/bin/sa-learn --ham -u ${local_part}"
+
+learn_spam:
+    driver = pipe
+    path = "/bin:/usr/bin:/usr/local/bin"
+    command = "/usr/local/bin/sa-learn --spam -u ${local_part}"
+
+dovecot:
+    driver = pipe
+    command = /usr/lib/dovecot/deliver
+    message_prefix =
+    message_suffix =
+    log_output
+    delivery_date_add
+    envelope_to_add
+    return_path_add
+    temp_errors = 64 : 69 : 70: 71 : 72 : 73 : 74 : 75 : 78
+
+local_delivery:
+    driver = appendfile
+    directory = /people/${local_part}/Maildir
+    maildir_format = true
+    delivery_date_add
+    envelope_to_add
+    return_path_add
+    group = mail
+    mode = 0660
+    create_directory = true
+    check_string = ""
+    escape_string = ""
+
+mailman:
+    driver = pipe
+    command = MM_WRAP \
+            "${if def:local_part_suffix \
+            {${sg{$local_part_suffix}{-(\\w+)(\\+.*)?}{\$1}}} \
+            {post}}" \
+            $local_part
+    current_directory = MM_HOME
+    home_directory = MM_HOME
+    user = MM_UID
+    group = MM_GID
+
+begin retry
+#example.com			*			F,120d,3h
+*   *   F,2h,15m; G,16h,1h,1.5; F,4d,6h
+
+begin rewrite
+
+begin authenticators
+
+plain_server:
+    driver = plaintext
+    public_name = PLAIN
+    server_condition = ${if ldapauth \
+        {user="uid=${quote_ldap_dn:$2},ou=people,dc=as65342,dc=net" \
+        pass=${quote:$3} \
+        ldaps:///}{yes}{no}}
+    server_set_id = $2
+    server_prompts = :

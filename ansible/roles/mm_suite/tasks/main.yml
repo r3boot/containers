@@ -1,0 +1,71 @@
+- name: prefetch container
+  shell: docker pull as65342/mm_suite:{{ version }}
+  tags:
+    - mm_suite
+
+- name: install configuration directory
+  file:
+    dest: /etc/mm_suite
+    state: directory
+    owner: root
+    group: mailman
+    mode: 0770
+  tags:
+    - mm_suite
+
+- name: install static configuration files
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/mm_suite/{{ item }}"
+    owner: root
+    group: mailman
+    mode: 0640
+  with_items:
+    - manage.py
+    - urls.py
+    - wsgi.py
+  tags:
+    - mm_suite
+
+- name: install templated configuration files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/mm_suite/{{ item }}"
+    owner: root
+    group: mailman
+    mode: 0640
+  with_items:
+    settings.py
+  tags:
+    - mm_suite
+
+- name: install unit file
+  template:
+    src: mm_suite.service.j2
+    dest: /etc/systemd/system/mm_suite.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart mm_suite
+  tags:
+  - mm_suite
+
+- name: enable service
+  systemd:
+    name: mm_suite
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+  - mm_suite
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/mm_suite.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - mm_suite

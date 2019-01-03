@@ -12,6 +12,7 @@ ExecStart=/bin/docker run --rm \
   -v /etc/nsd/zones:/srv/nsd/zones \
   -v /var/log/nsd:/srv/nsd/log \
   as65342/nsd:{{ version }}
+ExecStop=/bin/docker stop nsd
 
 [Install]
 WantedBy=multi-user.target

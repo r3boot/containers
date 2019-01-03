@@ -1,0 +1,34 @@
+- name: prefetch container
+  shell: docker pull as65342/ocsp:{{ version }}
+  tags:
+  - ocsp
+
+- name: install unit file
+  template:
+    src: ocsp.service.j2
+    dest: /etc/systemd/system/ocsp.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart ocsp
+  tags:
+  - ocsp
+
+- name: enable service
+  systemd:
+    name: ocsp
+    enabled: yes
+    state: started
+  tags:
+  - ocsp
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/ocsp.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - ocsp

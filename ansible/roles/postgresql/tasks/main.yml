@@ -1,0 +1,63 @@
+- name: prefetch container
+  shell: docker pull as65342/postgresql:{{ version }}
+  tags:
+  - postgresql
+
+- name: add group
+  group:
+    name: postgresql
+    gid: "{{ uidgid }}"
+  tags:
+  - postgresql
+
+- name: add user
+  user:
+    name: postgresql
+    uid: "{{ uidgid }}"
+    group: postgresql
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Postgresql system account
+  tags:
+  - postgresql
+
+- name: create database directory
+  file:
+    state: directory
+    dest: /var/lib/postgresql
+    owner: postgresql
+    group: postgresql
+    mode: 0700
+  tags:
+  - postgresql
+
+- name: install unit file
+  template:
+    src: postgresql.service.j2
+    dest: /etc/systemd/system/postgresql.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart postgresql
+  tags:
+  - postgresql
+
+- name: enable service
+  systemd:
+    name: postgresql
+    enabled: yes
+    state: started
+  tags:
+  - postgresql
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/postgresql.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - postgresql

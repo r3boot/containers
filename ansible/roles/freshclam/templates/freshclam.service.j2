@@ -12,6 +12,7 @@ ExecStart=/bin/docker run --rm \
   -v /var/log/clamav:/var/log/clamav \
   -v /run/clamav:/run/clamav \
   as65342/freshclam:{{ version }} -d
+ExecStop=/bin/docker stop freshclam
 
 [Install]
 WantedBy=multi-user.target

@@ -12,6 +12,7 @@ ExecStart=/bin/docker run --rm \
   -v /etc/bird.conf:/etc/bird.conf \
   -v /run/bird:/run/bird \
   as65342/bird:{{ version }}
+ExecStop=/bin/docker stop bird
 
 [Install]
 WantedBy=multi-user.target

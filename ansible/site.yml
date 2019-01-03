@@ -1,0 +1,50 @@
+- name: deploy common roles
+  hosts:
+    - ran
+    - services
+  user: r3boot
+  become: true
+  roles:
+    - facts
+    - tls
+    - cfssl_client
+
+- name: deploy all containers for ran.as65342.net
+  hosts:
+    - ran
+  user: r3boot
+  become: true
+  roles:
+    - facts
+    - bird
+    - birdc
+    - openvpn
+
+- name: deploy all containers on services.as65342.net
+  hosts:
+    - services
+  user: r3boot
+  become: true
+  roles:
+    - facts
+    - dehydrated
+    - nsd
+    - nsd-control
+    - redis
+    - redis-cli
+    - postgresql
+    - psql
+    - mariadb
+    - clamav
+    - freshclam
+    - cfssl
+    - ocsp
+    - openldap
+    - mailman-core
+    - mm_suite
+    - dovecot
+    - exim
+    - php7-fpm
+    - vhost_spiderwebz
+    - wp_spiderwebz
+    - nginx

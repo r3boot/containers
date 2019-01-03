@@ -1,18 +1,19 @@
 TARGET = $(shell basename ${PWD})
-VERSION = $(shell cat version.txt)
 TMPFILE = $(shell mktemp)
 NAMESPACE = as65342
+
+ifndef VERSION
+$(error VERSION is not set)
+endif
 
 VERSION_TAG = ${NAMESPACE}/${TARGET}:${VERSION}
 LATEST_TAG = ${NAMESPACE}/${TARGET}:latest
 
-all: build push
+all: build
 
 build:
 	docker build --no-cache --rm -t ${VERSION_TAG} -f Dockerfile .
 	docker tag ${VERSION_TAG} ${LATEST_TAG}
-
-push:
 	docker push ${VERSION_TAG}
 	docker push ${LATEST_TAG}
 

@@ -1,0 +1,24 @@
+- name: prefetch container
+  shell: docker pull as65342/psql:{{ version }}
+  tags:
+    - psql
+
+- name: install wrapper script
+  template:
+    src: psql.j2
+    dest: /usr/local/bin/psql
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - psql
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/psql.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - psql

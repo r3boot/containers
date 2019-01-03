@@ -65,3 +65,14 @@
     state: started
   tags:
     - openvpn
+
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/openvpn.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - openvpn

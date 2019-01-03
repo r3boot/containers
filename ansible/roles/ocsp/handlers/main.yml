@@ -1,0 +1,7 @@
+- name: restart ocsp
+  systemd:
+    name: ocsp
+    state: restarted
+    daemon_reload: yes
+  tags:
+  - ocsp

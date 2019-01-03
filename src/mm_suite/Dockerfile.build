@@ -1,0 +1,12 @@
+FROM alpine:latest
+MAINTAINER Lex van Roon <r3boot@r3blog.nl>
+
+RUN apk update \
+    && apk upgrade \
+    && apk add gcc git make python3 python3-dev musl-dev postgresql-dev xz \
+    && mkdir -p /build
+
+COPY files/build.sh /build.sh
+
+ENTRYPOINT ["/build.sh"]
+CMD [""]

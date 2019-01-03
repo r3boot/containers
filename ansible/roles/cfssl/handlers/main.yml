@@ -1,0 +1,7 @@
+- name: restart cfssl
+  systemd:
+    name: cfssl
+    state: restarted
+    daemon_reload: yes
+  tags:
+  - cfssl

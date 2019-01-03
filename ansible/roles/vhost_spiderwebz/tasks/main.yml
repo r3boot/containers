@@ -1,0 +1,36 @@
+- name: create vhost directories
+  file:
+    dest: "/var/www/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - spiderwebz
+  - spiderwebz/apps
+  - spiderwebz/logs
+  tags:
+  - vhost_spiderwebz
+
+- name: install nginx configurations
+  copy:
+    src: "{{ item }}.conf"
+    dest: "/etc/nginx/sites-available/{{ item }}.conf"
+    owner: root
+    group: nginx
+    mode: 0640
+  with_items:
+    blog.spiderwebz.nl
+  tags:
+    - vhost_spiderwebz
+
+- name: enable nginx vhosts
+  file:
+    src: "/etc/nginx/sites-available/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
+    state: link
+  with_items:
+    - blog.spiderwebz.nl
+  notify: restart wp_spiderwebz
+  tags:
+    - vhost_spiderwebz

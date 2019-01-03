@@ -1,0 +1,18 @@
+[Unit]
+Description=MariaDB running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStartPre=/bin/install -d -o root -g mysql -m 1770 /run/mysql
+ExecStart=/bin/docker run --rm \
+  --name mariadb \
+  --network host \
+  -v /etc/mysql:/etc/mysql \
+  -v /var/lib/mysql:/var/lib/mysql \
+  -v /run/mysql:/run \
+  as65342/mariadb:{{ version }}
+ExecStop=/bin/docker stop mariadb
+
+[Install]
+WantedBy=multi-user.target

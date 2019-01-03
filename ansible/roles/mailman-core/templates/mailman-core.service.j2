@@ -1,0 +1,20 @@
+[Unit]
+Description=Mailman-core running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name mailman-core \
+  --network host \
+  -v /etc/mailman.cfg:/etc/mailman.cfg \
+  -v /etc/mailman.d:/etc/mailman.d \
+  -v /var/lib/mailman:/var/lib/mailman \
+  -v /var/lock/mailman:/var/lock/mailman \
+  -v /var/spool/mailman:/var/spool/mailman \
+  -v /var/log/mailman:/var/log/mailman \
+  as65342/mailman-core:{{ version }}
+ExecStop=/bin/docker stop mailman-core
+
+[Install]
+WantedBy=multi-user.target

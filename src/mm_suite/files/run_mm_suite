@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /etc/mm_suite
+su mailman -c 'python3 manage.py migrate'
+su mailman -c 'python3 manage.py runserver'

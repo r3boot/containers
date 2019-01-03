@@ -1,0 +1,57 @@
+- name: prefetch container
+  shell: docker pull as65342/dehydrated:{{ version }}
+  tags:
+  - dehydrated
+
+- name: create configuration directory
+  file:
+    dest: "/etc/dehydrated"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+  - dehydrated
+
+- name: create configuration files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/dehydrated/{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+    - config
+    - domains.txt
+  tags:
+    - dehydrated
+
+- name: create well-known directory
+  file:
+    dest: /var/lib/dehydrated/challenge
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+  - dehydrated
+
+- name: install wrapper script
+  template:
+    src: dehydrated.j2
+    dest: /usr/local/bin/dehydrated
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - dehydrated
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/dehydrated.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - dehydrated

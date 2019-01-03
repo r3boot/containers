@@ -1,0 +1,7 @@
+- name: restart mm_suite
+  systemd:
+    name: mm_suite
+    state: restarted
+    daemon_reload: yes
+  tags:
+  - mm_suite

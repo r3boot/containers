@@ -1,0 +1,15 @@
+[Unit]
+Description=Cloudflare SSL toolkit OCSP service running inide of docker
+After=cfssl.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name ocsp \
+  --network host \
+  -v /etc/cfssl:/etc/cfssl \
+  as65342/ocsp:{{ version }}
+ExecStop=/bin/docker stop ocsp
+
+[Install]
+WantedBy=multi-user.target

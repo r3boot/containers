@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DB_DIR='/var/lib/mysql'
+
+if [[ ! -f "${DB_DIR}/ibdata1" ]]; then
+    chown mysql:mysql "${DB_DIR}"
+    install -d -o mysql -g mysql -m 0700 "${DB_DIR}/mysql"
+    install -d -o mysql -g mysql -m 0700 "${DB_DIR}/test"
+    /usr/bin/mysql_install_db -u mysql
+fi
+
+exec /usr/bin/mysqld_safe

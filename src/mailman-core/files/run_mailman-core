@@ -1,0 +1,4 @@
+#!/bin/sh
+
+chmod 1777 /run
+su mailman -c 'exec /usr/bin/master -C /etc/mailman.cfg -v -f'

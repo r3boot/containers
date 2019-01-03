@@ -53,3 +53,13 @@
     state: started
   tags:
     - bird
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/bird.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - bird

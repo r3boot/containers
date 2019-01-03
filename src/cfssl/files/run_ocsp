@@ -1,0 +1,8 @@
+#!/bin/sh
+
+CFSSL_DIR='/etc/cfssl'
+
+su cfssl -c "exec /usr/sbin/cfssl ocspserve \
+  -address 0.0.0.0 \
+  -port 8889 \
+  -db-config ${CFSSL_DIR}/db-config.json"

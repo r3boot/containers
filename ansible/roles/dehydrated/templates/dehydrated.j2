@@ -1,0 +1,6 @@
+#!/bin/sh
+
+exec docker run -it --rm \
+    -v /etc/dehydrated:/etc/dehydrated \
+    -v /var/lib/dehydrated:/var/lib/dehydrated \
+    as65342/dehydrated:{{ version }} ${@}

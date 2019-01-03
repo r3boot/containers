@@ -1,0 +1,18 @@
+[Unit]
+Description=Exim MTA running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name exim \
+  --network host \
+  -v /etc/mail/exim:/etc/mail \
+  -v /etc/exim:/etc/exim \
+  -v /var/log/exim:/var/log/exim \
+  -v /var/spool/exim:/var/spool/exim \
+  as65342/exim:{{ version }}
+ExecStop=/bin/docker stop exim
+
+[Install]
+WantedBy=multi-user.target

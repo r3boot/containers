@@ -1,0 +1,16 @@
+[Unit]
+Description=Mailman suite running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name mm_suite \
+  --network host \
+  -v /etc/mm_suite:/etc/mm_suite \
+  -v /var/log/mailman:/var/log/mailman \
+  as65342/mm_suite:{{ version }}
+ExecStop=/bin/docker stop mm_suite
+
+[Install]
+WantedBy=multi-user.target

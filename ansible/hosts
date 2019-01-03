@@ -1,3 +1,9 @@
+[all:vars]
+ansible_connection = ssh
+ansible_user = r3boot
+ansible_become_pass = {{ ansible_become_pass }}
+
+[all]
 10.42.14.65
 10.42.14.64
 10.42.14.63

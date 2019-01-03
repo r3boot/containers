@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenLDAP server running inside of docker
+After=docker.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/bin/docker run --rm \
+  --name openldap \
+  --network host \
+  -v /etc/certs/openldap:/etc/certs \
+  -v /etc/openldap:/etc/openldap \
+  -v /var/lib/openldap:/var/lib/openldap \
+  as65342/openldap:{{ version }}
+ExecStop=/bin/docker stop openldap
+
+[Install]
+WantedBy=multi-user.target

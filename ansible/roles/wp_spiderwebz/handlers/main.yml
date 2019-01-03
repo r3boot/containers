@@ -1,0 +1,7 @@
+- name: restart wp_spiderwebz
+  systemd:
+    name: wp_spiderwebz
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - wp_spiderwebz

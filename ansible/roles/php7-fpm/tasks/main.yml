@@ -1,0 +1,26 @@
+- name: install configuration directories
+  file:
+    dest: "/etc/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - php7
+    - php7/conf.d
+    - php7/php-fpm.d
+  tags:
+    - php7-fpm
+
+- name: install configuration files
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/php7/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - php.ini
+    - php-fpm.conf
+  tags:
+    - php7-fpm

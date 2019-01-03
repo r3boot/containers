@@ -1,0 +1,10 @@
+exim_role: mta
+dehydrated_domains:
+  - as65342.net
+  - smtp.as65342.net
+  - imap.as65342.net
+  - cloud.as65342.net
+  - r3blog.nl
+  - spiderwebz.nl
+  - blog.spiderwebz.nl
+  - gallery.spiderwebz.nl

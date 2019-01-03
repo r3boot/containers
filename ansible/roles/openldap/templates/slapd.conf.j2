@@ -1,0 +1,182 @@
+include   /etc/openldap/schema/core.schema
+include   /etc/openldap/schema/cosine.schema
+include   /etc/openldap/schema/inetorgperson.schema
+include   /etc/openldap/schema/openldap.schema
+include   /etc/openldap/schema/nis.schema
+include   /etc/openldap/schema/misc.schema
+include   /etc/openldap/schema/samba.schema
+include   /etc/openldap/schema/ldapns.schema
+include   /etc/openldap/schema/mail.schema
+
+# Security settings
+# Parameters: sasl, ssf, tls, transport, update_sasl, update_ssf,
+#             update_tls, update_transport
+security     ssf=128
+
+# Require settings
+# Paramters: none, authc, bind, LDAPv3, SASL (strong)
+#require      authc, LDAPv3
+
+# Allow settings
+# Parameters: none, bind_v2, tls_2_anon, bind_anon_cred, bind_anon_dn,
+#             update_anon
+#allow      bind_v2
+
+# Disallow settings
+# Parameters: bind_anon, bind_simple_unprotected, tls_2_anon,
+#             bind_simple, bind_krbv4, tls_authc
+
+# Password hash default value
+# Parameters: {SHA}, {SMD5}, {MD4}, {CRYPT}, {CLEARTEXT}
+password-hash   {SHA}
+
+# Search base
+defaultsearchbase dc=as65342,dc=net
+
+# Where clients are refered to if no
+# match is found locally
+# referral ldaps://ldapmaster.as65342.net
+
+## TLS setup, needs certificates
+
+TLSCACertificateFile /etc/certs/ca-bundle.pem
+TLSCertificateFile /etc/certs/openldap.pem
+TLSCertificateKeyFile /etc/certs/openldap-key.pem
+TLSVerifyClient allow
+TLSProtocolMin 3.1
+
+## Kerberos setup
+#srvtab   /etc/krb5.keytab.ldap
+
+# Where the pid file is put. The init.d script
+# will not stop the server if you change this.
+pidfile   /tmp/slapd.pid
+
+# List of arguments that were passed to the server
+argsfile  /tmp/slapd.args
+
+# Read slapd.conf(5) for possible values
+loglevel 256
+
+# Where the dynamically loaded modules are stored
+moduleload      back_hdb
+moduleload      back_monitor
+moduleload      syncprov
+#moduleload      back_shell
+
+# Some tuning parameters
+threads    32
+concurrency    32
+conn_max_pending 100
+conn_max_pending_auth  250
+reverse-lookup   off
+sizelimit    1000
+timelimit    30
+idletimeout   30
+
+# Limits
+#limits anonymous size.soft=500 time.soft=5
+#limits user    size=none time.soft=30
+
+# Speed up member add/mod/delete operations
+sortvals member memberUid roleOccupant
+
+access to dn.base=""
+        by * read
+
+# Access to schema information
+#access to dn.subtree=""
+#        by * read
+
+# The userPassword/shadow Emtries by default can be
+# changed by the entry owning it if they are authenticated.
+# Others should not be able to see it, except the admin
+# entry below
+access to attrs=userPassword,sambaPwdLastSet,sambaPwdMustChange,sambaPwdCanChange,shadowMax,shadowExpire
+  by dn="cn=ldapadmin,dc=as65342,dc=net" write
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
+  by anonymous auth
+  by self write
+  by * none
+
+# Samba passwords by default can be changed
+# by the entry owning it if they are authenticated.
+# Others should not be able to see it, except the
+# admin entry below
+access to attrs=sambaLmPassword,sambaNtPassword
+  by dn="cn=ldapadmin,dc=as65342,dc=net" write
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
+  by anonymous auth
+  by self write
+  by * none
+
+# Allow users to update their own information
+access to attrs=givenName,sn,mail,jpegPhoto
+  by dn="cn=ldapadmin,dc=as65342,dc=net" write
+  by dn="uid=replicate,ou=services,dc=as65342,dc=net" read
+  by self write
+  by * read
+
+# What trees should be readable, depends on your policy. Either
+# use this entry and specify what should be readable, or leave
+# the access to * => by * read below untouched
+#access to dn="ou=(people|groups)"
+# by * read
+
+# The admin dn has full write access
+access to *
+  by dn="cn=ldapadmin,dc=as65342,dc=net" =wrscx
+  by * read
+# by peername="ip=127\.0\.0\.1" read
+# by * none
+
+#######################################################################
+# database definitions
+#######################################################################
+
+# Monitor backend
+
+# The backend type, ldbm, is the default standard
+database  hdb
+cachesize 5000
+mode      0600
+directory /var/lib/openldap
+
+# The base of your directory
+suffix    "dc=as65342,dc=net"
+checkpoint  512 720
+
+# Sample password is "tester", generate a new one using the mkpasswd
+# utility and put the string after {crypt}
+rootdn  "cn=ldapadmin,dc=as65342,dc=net"
+rootpw  {{ slapd_rootpw }}
+
+# Indexing
+index default                                   sub
+index uid,mail                                  eq
+index cn,sn,givenName,ou                        pres,eq,sub
+index objectClass                               pres,eq
+index uidNumber,gidNumber,memberuid             eq
+index roleOccupant                              eq
+index mailKey,mailAliasValue,mailVirtualValue   eq
+index mtaTransport,relayHost                    eq
+index virus,spam,rbl                            eq
+index member                                    pres,eq
+index sambaSID                                  eq
+index sambaPrimaryGroupSID                      eq
+index sambaDomainName                           eq
+
+syncrepl rid=002
+  type=RefreshandPersist
+  provider=ldaps://ldap-2.rkt
+  bindmethod=simple
+  searchbase="dc=as65342,dc=net"
+  retry="5 3 300 +"
+  attrs="*,+"
+  binddn=""uid=replicate,ou=services,dc=as65342,dc=net""
+  credentials="{{ slapd_syncrepl_pw }}"
+
+overlay syncprov
+syncprov-checkpoint 100 10
+syncprov-sessionlog 100
+mirrormode on

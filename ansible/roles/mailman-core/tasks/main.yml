@@ -1,0 +1,91 @@
+- name: prefetch container
+  shell: docker pull as65342/mailman-core:{{ version }}
+  tags:
+  - mailman-core
+
+- name: add group
+  group:
+    name: mailman
+    gid: "{{ uidgid }}"
+  tags:
+  - mailman-core
+
+- name: add user
+  user:
+    name: mailman
+    uid: "{{ uidgid }}"
+    group: mailman
+    home: /var/empty
+    shell: /sbin/nologin
+    password: !
+    comment: Mailman system account
+  tags:
+  - mailman-core
+
+- name: install configuration file
+  template:
+    src: mailman.cfg.j2
+    dest: /etc/mailman.cfg
+    owner: root
+    group: mailman
+    mode: 0640
+  notify:
+    - restart mailman-core
+  tags:
+    - mailman-core
+
+- name: install ext dir
+  file:
+    dest: /etc/mailman.d
+    state: directory
+    owner: root
+    group: mailman
+    mode: 0750
+  tags:
+    - mailman-core
+
+- name: create data directories
+  file:
+    dest: /var/{{ item }}
+    state: directory
+    owner: root
+    group: mailman
+    mode: 0770
+  with_items:
+    - lib/mailman
+    - spool/mailman
+    - lock/mailman
+    - log/mailman
+  tags:
+    - mailman-core
+
+- name: install unit file
+  template:
+    src: mailman-core.service.j2
+    dest: /etc/systemd/system/mailman-core.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart mailman-core
+  tags:
+  - mailman-core
+
+- name: enable service
+  systemd:
+    name: mailman-core
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  tags:
+  - mailman-core
+
+- name: install version fact
+  copy:
+    content: '{"version":"{{ version }}"}'
+    dest: /etc/ansible/facts.d/mailman-core.fact
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+  - mailman-core

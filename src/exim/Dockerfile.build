@@ -1,0 +1,15 @@
+FROM alpine:latest
+MAINTAINER Lex van Roon <r3boot@r3blog.nl>
+
+RUN apk update \
+    && apk upgrade \
+    && apk add curl gawk gcc make perl openldap-dev postgresql-dev \
+      hiredis-dev pcre-dev libnsl-dev db-dev libidn-dev libressl-dev \
+      libspf2-dev linux-headers musl-dev \
+    && mkdir -p /build
+
+COPY files/Makefile /Makefile
+COPY files/build.sh /build.sh
+
+ENTRYPOINT ["/build.sh"]
+CMD [""]
